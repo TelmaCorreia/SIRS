@@ -40,19 +40,16 @@ public class MySocket {
 		return this.output;
 	}
 	
-	@SuppressWarnings("deprecation")
-	public void Connection(){
+	public void request(String msg){
 		if (socket != null && output != null && input != null) {
             try {
-            	output.writeBytes("Cenas");
-            	
+            	output.writeBytes(msg);
                 BufferedReader lines = new BufferedReader(new InputStreamReader(input, "UTF-8"));
                 while (true) {
                   String line = lines.readLine();
                   if (line == null)
                     break;
                   System.out.println("Server: " + line);
-                  //TODO: protocol
                   if (line.indexOf("Ok") != -1) {
                       break;
                     }
@@ -68,5 +65,35 @@ public class MySocket {
 		}
 		
 	}
+	
+
+	
+	public void ping(){
+		if (socket != null && output != null && input != null) {
+            try {
+            	output.writeBytes("PING");
+                BufferedReader lines = new BufferedReader(new InputStreamReader(input, "UTF-8"));
+                while (true) {
+                  String line = lines.readLine();
+                  if (line == null)
+                    break;
+                  System.out.println("Server: " + line);
+                  if (line.indexOf("Ok") != -1) {
+                      break;
+                    }
+                  
+                }
+                
+                output.close();
+                input.close();
+                socket.close();
+            } catch (IOException e) {
+                System.err.println("IOException:  " + e.getMessage());
+            }
+		}
+		
+	}
+	
+	
 	
 }
