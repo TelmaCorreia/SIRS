@@ -20,8 +20,8 @@ import org.apache.commons.codec.binary.Base64;
 
 public class KeyHelper {
 	
-	private String key; 
-	private String initialVector; 
+	private byte[] key; 
+	private byte[] initialVector; 
 	
 	public KeyHelper(){
 		this.key=generateKey();
@@ -29,37 +29,37 @@ public class KeyHelper {
 	}
 	
 	
-	public String getKey(){
+	public byte[] getKey(){
 		return key;
 	}
 	
-	public String getInitialVector(){
+	public byte[] getInitialVector(){
 		return initialVector;
 	}
 	
-	//FIXME:why 12?
-	private String generateKey(){
+	private byte[] generateKey(){
 		SecureRandom random = new SecureRandom();
 		byte bytes[] = new byte[12]; 
 		random.nextBytes(bytes);
-		return Base64.encodeBase64String(bytes);
+		return bytes;
 	}
 	
-	//FIXME:why 12?
-	private String generateIV(){
+	
+	private byte[] generateIV(){
 		SecureRandom random = new SecureRandom();
-		byte bytes[] = new byte[12]; 
+		byte bytes[] = new byte[16]; 
 		
 		random.nextBytes(bytes);
-		return Base64.encodeBase64String(bytes);
+
+		return bytes;
 	}
 	
-	public String encrypt(String key, String initialVector, String value){
+	public String encrypt(byte[] key, byte[] initialVector, String value){
 		
 		try {
 		
-			IvParameterSpec initializationVector = new IvParameterSpec(initialVector.getBytes("UTF-8"));
-	        SecretKeySpec secretKeySpec = new SecretKeySpec(key.getBytes("UTF-8"), "AES");
+			IvParameterSpec initializationVector = new IvParameterSpec(initialVector);
+	        SecretKeySpec secretKeySpec = new SecretKeySpec(key, "AES");
 	
 	        //FIXME: advantages/disadvantages
 	        //AES/CBC/NoPadding (128)
@@ -73,8 +73,6 @@ public class KeyHelper {
 
 	        return Base64.encodeBase64String(encrypted);
 	        
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
 		} catch (NoSuchAlgorithmException e) {
 			e.printStackTrace();
 		} catch (NoSuchPaddingException e) {
@@ -92,11 +90,11 @@ public class KeyHelper {
 		
 	}
 	
-	public String decrypt(String key, String initialVector, String encrypted){
+	public String decrypt(byte[] key, byte[] initialVector, String encrypted){
 		
 		try {	
-			IvParameterSpec initializationVector = new IvParameterSpec(initialVector.getBytes("UTF-8"));
-	        SecretKeySpec secretKeySpec = new SecretKeySpec(key.getBytes("UTF-8"), "AES");
+			IvParameterSpec initializationVector = new IvParameterSpec(initialVector);
+	        SecretKeySpec secretKeySpec = new SecretKeySpec(key, "AES");
 
 	        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
 			
@@ -106,8 +104,6 @@ public class KeyHelper {
 
             return new String(original);
 		} catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
-			e.printStackTrace();
-		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		} catch (IllegalBlockSizeException e) {
 			e.printStackTrace();
