@@ -13,7 +13,7 @@ def on_receiving_key(key):
 
 def on_close():
     global stored_key
-    file_encription.encrypt_files(key, folder)
+    file_encription.encrypt_files(stored_key, folder)
     stored_key = ""
 
 def validkey(key):
