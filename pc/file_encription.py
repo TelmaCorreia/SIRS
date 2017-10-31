@@ -1,5 +1,7 @@
 import os, random, struct
 from Crypto.Cipher import AES
+import Crypto.Random.random
+
 
 # taken from https://eli.thegreenplace.net/2010/06/25/aes-encryption-of-files-in-python-with-pycrypto
 def encrypt_file(key, in_filename, out_filename=None, chunksize=64*1024):
@@ -26,14 +28,14 @@ def encrypt_file(key, in_filename, out_filename=None, chunksize=64*1024):
     if not out_filename:
         out_filename = in_filename + '.enc'
 
-    iv = ''.join(chr(random.randint(0, 0xFF)) for i in range(16)) # TODO change to secure random (?) still stored plainly
+    iv = ''.join(chr(random.randint(0, 0xFF)) for i in range(16))
     encryptor = AES.new(key, AES.MODE_CBC, iv)
-    filesize = os.path.getsize(in_filename) # Vulnerability? size is predictable, size of padding could be better
+    filesize = os.path.getsize(in_filename)
 
     with open(in_filename, 'rb') as infile:
         with open(out_filename, 'wb') as outfile:
             outfile.write(struct.pack('<Q', filesize))
-            outfile.write(iv) # Vulnerability? IV should be kept secret?
+            outfile.write(iv)
 
             while True:
                 chunk = infile.read(chunksize)
@@ -69,3 +71,20 @@ def decrypt_file(key, in_filename, out_filename=None, chunksize=24*1024):
                 outfile.write(decryptor.decrypt(chunk))
 
             outfile.truncate(origsize)
+
+
+def decrypt_files(key, folder):
+    for root, dirnames, filenames in os.walk(folder):
+        for filename in filenames:
+            print "decripting", root+"/"+filename
+            decrypt_file(key, root+"/"+filename, root+"/"+filename)
+
+
+def encrypt_files(key, folder):
+    for root, dirnames, filenames in os.walk(folder):
+        for filename in filenames:
+            print "encripting", filename
+            encrypt_file(key, root+"/"+filename, "tmpfile.tmp")
+            # TODO(?) shred plain file?
+            os.remove(root+"/"+filename)
+            os.rename("tmpfile.tmp", root+"/"+filename)

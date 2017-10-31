@@ -1,41 +1,68 @@
 import os
 import file_encription
+import BaseHTTPServer
+import base64
 
 folder = "folder"
-key = "0123456701234567"
+stored_key = "0123456701234567"
 
-def on_connection():
-    # TODO ask for key
-    print "Asking for key"
-    pass
-
-def on_receiving_key():
-    for root, dirnames, filenames in os.walk(folder):
-        for filename in filenames:
-            print "decripting", root+"/"+filename
-            file_encription.decrypt_file(key, root+"/"+filename, root+"/"+filename)
-
-            
-
+def on_receiving_key(key):
+    global stored_key
+    stored_key = key
+    file_encription.decrypt_files(key, folder)
 
 def on_close():
-    for root, dirnames, filenames in os.walk(folder):
-        for filename in filenames:
-            print "encripting", filename
-            file_encription.encrypt_file(key, root+"/"+filename, "tmpfile.tmp")
-            # TODO(?) shred plain file?
-            os.remove(root+"/"+filename)
-            os.rename("tmpfile.tmp", root+"/"+filename)
+    global stored_key
+    file_encription.encrypt_files(key, folder)
+    stored_key = ""
 
-def ping():
-    print "pinging mobile"
+def validkey(key):
+    return True #TODO
 
-def on_ping():
-    print "ping received"
+class MYHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
-    ping()
+    def answer(self, text):
+        self.send_response(200)
+        self.send_header("Content-type", "text/html")
+        self.end_headers()
+        self.wfile.write(text)
 
+    def do_GET(self):
+        self.do_POST()
 
+    def do_POST(self):
+        print "handling GET"
+
+        content_len = int(self.headers.getheader('content-length', 0))
+        input = self.rfile.read(content_len)
+
+        if input == "":
+            self.answer("Received empty string")
+
+        elif input.startswith("FKEY"):
+            key = base64.b64decode(input[4:])
+            print "using key", key
+            if validkey(key):
+                on_receiving_key(key)
+            self.answer("PING")
+
+        elif input.startswith("STOP"):
+            on_close()
+            self.answer("STOP")
+
+        elif input.startswith("PING"):
+            self.answer("PING")
+
+        else:
+            self.answer("Mesage not recognized")
+
+def run(server_class=BaseHTTPServer.HTTPServer,
+        handler_class=MYHandler):
+    server_address = ('', 80)
+    httpd = server_class(server_address, handler_class)
+    httpd.serve_forever()
+
+run()
 # DEMO
 
 #on_close() # SETUP
