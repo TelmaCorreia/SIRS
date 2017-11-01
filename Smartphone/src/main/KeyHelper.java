@@ -1,7 +1,16 @@
 package main;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -25,7 +34,6 @@ public class KeyHelper {
 	
 	public KeyHelper(){
 		this.key=generateKey();
-		this.initialVector=generateIV();
 	}
 	
 	
@@ -33,89 +41,37 @@ public class KeyHelper {
 		return key;
 	}
 	
-	public byte[] getInitialVector(){
-		return initialVector;
-	}
 	
 	private byte[] generateKey(){
-		SecureRandom random = new SecureRandom();
-		byte bytes[] = new byte[12]; 
-		random.nextBytes(bytes);
-		return bytes;
-	}
-	
-	
-	private byte[] generateIV(){
-		SecureRandom random = new SecureRandom();
-		byte bytes[] = new byte[16]; 
-		
-		random.nextBytes(bytes);
-
-		return bytes;
-	}
-	
-	public String encrypt(byte[] key, byte[] initialVector, String value){
-		
+		String filename = "key.txt";
+		File keyFile = new File(filename);
 		try {
-		
-			IvParameterSpec initializationVector = new IvParameterSpec(initialVector);
-	        SecretKeySpec secretKeySpec = new SecretKeySpec(key, "AES");
-	
-	        //FIXME: advantages/disadvantages
-	        //AES/CBC/NoPadding (128)
-	        //AES/CBC/PKCS5Padding (128)
-	        //AES/ECB/NoPadding (128)
-	       
-	        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
-	        cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, initializationVector);
-	
-	        byte[] encrypted = cipher.doFinal(value.getBytes());
-
-	        return Base64.encodeBase64String(encrypted);
-	        
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
-		} catch (NoSuchPaddingException e) {
-			e.printStackTrace();
-		} catch (IllegalBlockSizeException e) {
-			e.printStackTrace();
-		} catch (BadPaddingException e) {
-			e.printStackTrace();
-		} catch (InvalidKeyException e) {
-			e.printStackTrace();
-		} catch (InvalidAlgorithmParameterException e) {
-			e.printStackTrace();
+			keyFile.createNewFile();
+			if (!(keyFile.exists() && !keyFile.isDirectory())){
+				System.out.println("not exist");
+				SecureRandom random = new SecureRandom();
+				byte bytes[] = new byte[12]; 
+				random.nextBytes(bytes);
+				Path file = Paths.get(filename);
+				Files.write(file,bytes);
+				return bytes;
+			}else{
+				System.out.println("exist");
+				byte[] key = new byte[(int) keyFile.length()];
+				InputStream is = new FileInputStream(keyFile);
+				is.read(key);
+		        is.close();
+		        return key;
+			}
+			
+		} catch (IOException e1) {
+			e1.printStackTrace();
 		}
 		return null;
-		
+
 	}
 	
-	public String decrypt(byte[] key, byte[] initialVector, String encrypted){
-		
-		try {	
-			IvParameterSpec initializationVector = new IvParameterSpec(initialVector);
-	        SecretKeySpec secretKeySpec = new SecretKeySpec(key, "AES");
+	
 
-	        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
-			
-	        cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, initializationVector);
-
-            byte[] original = cipher.doFinal(Base64.decodeBase64(encrypted));
-
-            return new String(original);
-		} catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
-			e.printStackTrace();
-		} catch (IllegalBlockSizeException e) {
-			e.printStackTrace();
-		} catch (BadPaddingException e) {
-			e.printStackTrace();
-		} catch (InvalidKeyException e) {
-			e.printStackTrace();
-		} catch (InvalidAlgorithmParameterException e) {
-			e.printStackTrace();
-		}
-
-        return null;
-	}
 
 }
