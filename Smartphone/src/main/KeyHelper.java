@@ -46,11 +46,11 @@ public class KeyHelper {
 		String filename = "key.txt";
 		File keyFile = new File(filename);
 		try {
-			keyFile.createNewFile();
 			if (!(keyFile.exists() && !keyFile.isDirectory())){
+				keyFile.createNewFile();
 				System.out.println("not exist");
 				SecureRandom random = new SecureRandom();
-				byte bytes[] = new byte[12]; 
+				byte bytes[] = new byte[16]; 
 				random.nextBytes(bytes);
 				Path file = Paths.get(filename);
 				Files.write(file,bytes);
