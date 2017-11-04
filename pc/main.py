@@ -34,14 +34,16 @@ class MYHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         print "handling GET"
 
         content_len = int(self.headers.getheader('content-length', 0))
+        print "content-lenght", content_len
         input = self.rfile.read(content_len)
+        print "received", input, "with len", len(input)
 
         if input == "":
             self.answer("Received empty string")
 
         elif input.startswith("FKEY"):
             key = base64.b64decode(input[4:])
-            print "using key", key
+            print "using key", key, "with len", len(key)
             if validkey(key):
                 on_receiving_key(key)
             self.answer("PING")
