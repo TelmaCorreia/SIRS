@@ -40,7 +40,7 @@ public class MyHttpClient {
 			HttpPost post = new HttpPost(url);
 			
 			if(requestType.equals(FKEY)){
-				KeyHelper kh = new KeyHelper();
+				SecurityHelper kh = new SecurityHelper();
 				msg = msg + Base64.getEncoder().encodeToString(kh.getKey());
 			}
 			
