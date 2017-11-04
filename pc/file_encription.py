@@ -1,6 +1,6 @@
-import os, random, struct
+import os, struct
 from Crypto.Cipher import AES
-import Crypto.Random.random
+from Crypto.Random import random
 
 
 # taken from https://eli.thegreenplace.net/2010/06/25/aes-encryption-of-files-in-python-with-pycrypto
@@ -42,7 +42,7 @@ def encrypt_file(key, in_filename, out_filename=None, chunksize=64*1024):
                 if len(chunk) == 0:
                     break
                 elif len(chunk) % 16 != 0:
-                    chunk += ' ' * (16 - len(chunk) % 16)
+                    chunk += ''.join(chr(random.randint(0, 0xFF)) for i in range(16 - len(chunk) % 16))
 
                 outfile.write(encryptor.encrypt(chunk))
 
