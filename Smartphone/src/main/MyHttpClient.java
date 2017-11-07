@@ -36,12 +36,21 @@ public class MyHttpClient {
 
 	  
 	  private void sendPost(String url, String requestType) throws Exception {
-		  	String msg = requestType;
+		  	String msg = "";
+		  	RequestManager rm = new RequestManager();
 			HttpPost post = new HttpPost(url);
 			
+			switch(requestType){
+			case FKEY: 
+				rm.sendFKEY(requestType);
+			case PING: 
+				rm.sendPING(requestType);
+			case STOP: 
+				rm.sendSTOP(requestType);
+
+			}
 			if(requestType.equals(FKEY)){
-				SecurityHelper kh = new SecurityHelper();
-				msg = msg + Base64.getEncoder().encodeToString(kh.getKey());
+
 			}
 			
 			
