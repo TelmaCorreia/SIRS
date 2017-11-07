@@ -32,8 +32,8 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
+import java.util.Base64;
 
-import org.apache.commons.codec.binary.Base64;
 
 
 /*
@@ -46,16 +46,27 @@ public class SecurityHelper {
 	
 	private byte[] fileKey; 
 	private byte[] sessionKey;
+	private byte[] initializationVector;
 	
 	
 	public SecurityHelper(){
 		this.fileKey=generateKey();
 		this.sessionKey = generateSessionKey();
+		this.initializationVector = generateIV();
+		
 	}
 	
 	
 	public byte[] getKey(){
 		return fileKey;
+	}
+	
+	public byte[] getSessionKey(){
+		return sessionKey;
+	}
+	
+	public byte[] getIV(){
+		return initializationVector;
 	}
 	
 	
@@ -65,7 +76,6 @@ public class SecurityHelper {
 		try {
 			if (!(keyFile.exists() && !keyFile.isDirectory())){
 				keyFile.createNewFile();
-				System.out.println("not exist");
 				SecureRandom random = new SecureRandom();
 				byte bytes[] = new byte[16]; 
 				random.nextBytes(bytes);
@@ -73,7 +83,6 @@ public class SecurityHelper {
 				Files.write(file,bytes);
 				return bytes;
 			}else{
-				System.out.println("exist");
 				byte[] key = new byte[(int) keyFile.length()];
 				InputStream is = new FileInputStream(keyFile);
 				is.read(key);
@@ -157,7 +166,7 @@ public class SecurityHelper {
 public byte[] encrypt(byte[] value){
 		
 		try {
-			byte[] initialVector = generateIV();
+			byte[] initialVector = getIV();
 			IvParameterSpec initializationVector = new IvParameterSpec(initialVector);
 	        SecretKeySpec secretKeySpec = new SecretKeySpec(this.sessionKey, "AES");
 	
@@ -188,8 +197,8 @@ public byte[] encrypt(byte[] value){
 	public byte[] decrypt(byte[] encrypted){
 		
 		try {	
-			byte[] initialVector = generateIV();
-			byte[] key = generateSessionKey();
+			byte[] initialVector = getIV();
+			byte[] key = getSessionKey();
 			IvParameterSpec initializationVector = new IvParameterSpec(initialVector);
 	        SecretKeySpec secretKeySpec = new SecretKeySpec(key, "AES");
 	
@@ -197,7 +206,7 @@ public byte[] encrypt(byte[] value){
 			
 	        cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, initializationVector);
 	
-	        byte[] original = cipher.doFinal(Base64.decodeBase64(encrypted));
+	        byte[] original = cipher.doFinal(encrypted);
 	
 	        return original;
 		} catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
@@ -215,13 +224,12 @@ public byte[] encrypt(byte[] value){
 	    return null;
 	}
 
-
-	public byte[] composeMsg(byte[] requestType, byte[] content) {
+	//Receives the content of the message, attach the nounce and generate the hash
+	public byte[] composeMsg(byte[] content) {
 		byte[] nounce = generateNonce();
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 		try {
 			outputStream.write(nounce);
-			outputStream.write(requestType);
 			outputStream.write(content);
 		} catch (IOException e) {
 			e.printStackTrace();

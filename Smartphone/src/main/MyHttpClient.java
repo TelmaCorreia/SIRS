@@ -21,16 +21,23 @@ public class MyHttpClient {
 
 	  public static void main(String[] args) throws Exception {
 	
-			String url = "http://localhost";
-		
+		  String url = "http://localhost";
+			
+			System.out.println("*** server started ***");
+
 			MyHttpClient http = new MyHttpClient();
 		
-			http.sendPost(url, FKEY);
-			http.sendPost(url, PING);
-			http.sendPost(url, STOP);
+			try{
+				http.sendPost(url, FKEY);
+				http.sendPost(url, PING);
+				http.sendPost(url, STOP);
+			}catch( org.apache.http.conn.HttpHostConnectException e){
+				System.out.println(e.getMessage());
+			}
+			
 		
 		
-			System.out.println("Done");
+			System.out.println("*** server terminated ***");
 	  }
 	
 
@@ -49,9 +56,7 @@ public class MyHttpClient {
 				rm.sendSTOP(requestType);
 
 			}
-			if(requestType.equals(FKEY)){
-
-			}
+			
 			
 			
 			post.setHeader("content-lenght",String.valueOf(msg.length()));
