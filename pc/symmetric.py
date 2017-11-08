@@ -30,16 +30,14 @@ def hash_message(message):
 def check_hash_message(text):
     hash_size = 32
     if len(text) < hash_size:
-        print "ERROR_ Message too small"
-        # TODO
+        raise Exception("Hash", "Message too small")
 
     received_hash = text[:hash_size]
 
     actual_hash = hash_text(text[hash_size:])
 
-    if (received_hash != actual_hash):
-        print "Mismatching Hash!"
-        #TODO
+    if received_hash != actual_hash:
+        raise Exception("Hash", "Mismatching Hash!")
 
     return text[hash_size:]
 
@@ -48,8 +46,7 @@ def check_time_message(text):
     timestamp_text = text[:timestamp_size]
     received_timestamp = struct.unpack('<'+timestamp_format, timestamp_text)[0]
     if not is_fresh(received_timestamp):
-        print "Unfresh message received"
-        #TODO
+        raise Exception("Freshness", "Old message received")
 
     message = text[timestamp_size:]
     return message
@@ -99,7 +96,7 @@ def decompose_message(text, key="0123456701234567", iv="0123456701234567"):
 #print decrypt_string(encrypt_string("A"))
 
 
-composed =  compose_message("A")
-print composed
-print decompose_message(composed)
+#composed =  compose_message("A")
+#print composed
+#print decompose_message(composed)
 

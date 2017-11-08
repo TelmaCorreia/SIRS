@@ -2,22 +2,7 @@ import os
 import file_encription
 import BaseHTTPServer
 import base64
-
-folder = "folder"
-stored_key = "0123456701234567"
-
-def on_receiving_key(key):
-    global stored_key
-    stored_key = key
-    file_encription.decrypt_files(key, folder)
-
-def on_close():
-    global stored_key
-    file_encription.encrypt_files(stored_key, folder)
-    stored_key = ""
-
-def validkey(key):
-    return True #TODO
+import core
 
 class MYHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
@@ -35,28 +20,12 @@ class MYHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
         content_len = int(self.headers.getheader('content-length', 0))
         print "content-lenght", content_len
-        input = self.rfile.read(content_len)
-        print "received", input, "with len", len(input)
+        incoming = self.rfile.read(content_len)
+        print "received", incoming, "with len", len(incoming)
+        text = base64.b64decode(incoming)
 
-        if input == "":
-            self.answer("Received empty string")
-
-        elif input.startswith("FKEY"):
-            key = base64.b64decode(input[4:])
-            print "using key", key, "with len", len(key)
-            if validkey(key):
-                on_receiving_key(key)
-            self.answer("PING")
-
-        elif input.startswith("STOP"):
-            on_close()
-            self.answer("STOP")
-
-        elif input.startswith("PING"):
-            self.answer("PING")
-
-        else:
-            self.answer("Mesage not recognized")
+        message = core.process_raw(text)
+        self.answer(base64.b64encode(message))
 
 def run(server_class=BaseHTTPServer.HTTPServer,
         handler_class=MYHandler):
@@ -65,16 +34,3 @@ def run(server_class=BaseHTTPServer.HTTPServer,
     httpd.serve_forever()
 
 run()
-# DEMO
-
-#on_close() # SETUP
-
-#on_connection() # ->
-
-#on_receiving_key() # <-
-
-#ping() # ->
-
-#on_ping() #<->
-
-#on_close()
