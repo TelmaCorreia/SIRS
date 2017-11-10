@@ -9,5 +9,11 @@
 	<classpathentry kind="lib" path="C:/Users/telma/SIRS/libraries/httpcomponents-client-4.5.3/lib/commons-logging-1.2.jar"/>
 	<classpathentry kind="lib" path="C:/Users/telma/SIRS/libraries/httpcomponents-client-4.5.3"/>
 	<classpathentry kind="lib" path="C:/Users/telma/SIRS/libraries/commons-codec-1.11"/>
+	<classpathentry kind="lib" path="C:/Users/telma/SIRS/libraries/httpcomponents-client-4.5.3/lib/commons-codec-1.9.jar"/>
+	<classpathentry kind="lib" path="C:/Users/telma/SIRS/libraries/httpcomponents-client-4.5.3/lib/fluent-hc-4.5.3.jar"/>
+	<classpathentry kind="lib" path="C:/Users/telma/SIRS/libraries/httpcomponents-client-4.5.3/lib/httpclient-cache-4.5.3.jar"/>
+	<classpathentry kind="lib" path="C:/Users/telma/SIRS/libraries/httpcomponents-client-4.5.3/lib/httpmime-4.5.3.jar"/>
+	<classpathentry kind="lib" path="C:/Users/telma/SIRS/libraries/httpcomponents-client-4.5.3/lib/jna-4.1.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/telma/SIRS/libraries/httpcomponents-client-4.5.3/lib/jna-platform-4.1.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
