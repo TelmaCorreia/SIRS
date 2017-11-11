@@ -47,7 +47,7 @@ public class RequestManager {
 
 	public String sendSimpleMessage(String requestType) {
 		byte[] content = getSecurityHelper().composeMsgSymetricEncryption(requestType.getBytes());
-		return new String(content);
+		return  Base64.encodeBase64String(content);
 	}
 
 	public String generateMessage(String requestType) {
@@ -93,6 +93,11 @@ public class RequestManager {
 	
 		return (nonce && hash);
 		
+	}
+
+	public String test(String string) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	 
 	
