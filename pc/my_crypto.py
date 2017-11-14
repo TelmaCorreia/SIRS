@@ -4,6 +4,9 @@ from Crypto.Cipher import AES
 from Crypto.PublicKey import RSA
 from Crypto.Hash import SHA256
 from Crypto.Random import random
+from Crypto.Signature import PKCS1_v1_5 
+from Crypto.PublicKey.RSA
+from Crypto.Cipher import PKCS1_v1_5
 
 rsa_key_file = ""
 
@@ -47,8 +50,10 @@ def hash_message(message):
 def sign_message(message):
     """Returns signed_hash+message"""
     rsa_key = RSA.importKey(open(rsa_key_file, "rb").read())
-    message_hash = hash_text(message)
-    signature = rsa_key.decrypt(message_hash) # TODO switch to recommended signature. proper padding
+    signer = PKCS1_v1_5.new(rsa_key)
+    signature = signer.sign(message)
+    #message_hash = hash_text(message)
+    #signature = rsa_key.decrypt(message_hash) # TODO switch to recommended signature. proper padding
     return signature + message
 
 def check_hash_message(text):
@@ -100,10 +105,12 @@ def decompose_message(text, key="0123456701234567", iv="0123456701234567"):
     return fresh_message
 
 def decompose_start(message):
-    #rsa_key = RSA.importKey(open(rsa_key_file, "rb").read())
+    rsa_key = RSA.importKey(open(rsa_key_file, "rb").read())
     #decrypted =  rsa_key.decrypt(message) # TODO swith to recommended. proper padding
+    decryptor = PKCS1_v1_5.new(rsa_key)
+    decrypted = decryptor.decrypt(message)
 
-    decrypted = message # TODO RSA
+    #decrypted = message # TODO RSA
     correct_message = check_hash_message(decrypted)
     fresh_message = check_time_message(correct_message)
     return fresh_message
