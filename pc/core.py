@@ -7,9 +7,9 @@ seconds_until_expiration = 10
 key_size = 16
 
 # Session storage
-stored_key = "0123456701234567" # FIXME ALL "" by default
-session_key = "0123456701234567"
-session_iv = "0123456701234567"
+stored_key = "" # FIXME ALL "" by default
+session_key = ""
+session_iv = ""
 
 def assert_validkey(key):
     if len(key) != key_size:
@@ -43,13 +43,18 @@ def refresh_timer():
 
 def process_raw(text):
     """Throws exceptions on incorrect messages! Must be handled above"""
+    print "RAW:", text
+    global session_iv
+    global session_key
     if session_key:
+        print "CORE: Processing symmetric message"
         message = my_crypto.decompose_message(text, session_key, session_iv)
+        print "CORE: Decomposed symmetric message"
         response = process_message(message)
+        print "CORE: Processed symmetric message"
         reply =  my_crypto.compose_message(response, session_key, session_iv)
+        print "CORE: Composed symmetric message"
         if response == "STOP":
-            global session_iv
-            global session_key
             session_iv = ""
             session_key = ""
         return reply
@@ -59,22 +64,28 @@ def process_raw(text):
         return my_crypto.compose_start(response, session_key, session_iv)
 
 def process_message(message):
+    print "Processing symmetric message:", message
+    
     if message == "":
         raise Exception("Received empty string")
-
     elif message.startswith("FKEY"):
         key = message[4:]
-        print "using key", key, "with len", len(key)
+        print "FKEY using key", key, "with len", len(key)
         assert_validkey(key)
+        print "FKEY is valid"
         on_receiving_key(key)
+        print "Files decrypted"
         return "PING"
 
     elif message == "STOP":
+        print "STOPPING"
         on_close()
+        print "Closed"
         return "STOP"
 
     elif message == "PING":
         refresh_timer()
+        print "PING"
         return "PING"
     else:
         raise Exception("Received unkonwn string", message)
