@@ -11,7 +11,7 @@ from Crypto.Cipher import PKCS1_OAEP as pkcs1_cipher
 from Crypto.Signature import PKCS1_v1_5 as pkcs1_signature
 
 
-rsa_key_file = "../private_key.pem"
+rsa_key_file = "..\private_key.der"
 
 def hash_text(text):
     """SHA256 hash"""
@@ -31,16 +31,16 @@ def is_fresh(timestamp):
 def time_message(message):
     """Returns timestamp+message"""
     timestamp = int(time.time())
-    nonced_message = struct.pack('<'+timestamp_format, timestamp) + message
+    nonced_message = struct.pack('>'+timestamp_format, timestamp) + message
     return nonced_message
 
 def check_time_message(text):
     """Assumes timestamp+message. Checks if the timestamp is fresh"""
     timestamp_size = struct.calcsize(timestamp_format)
     timestamp_text = text[:timestamp_size]
-    received_timestamp = struct.unpack('<'+timestamp_format, timestamp_text)[0]
+    received_timestamp = struct.unpack('>'+timestamp_format, timestamp_text)[0]
     if not is_fresh(received_timestamp):
-        raise Exception("Freshness", "Old message received")
+        raise Exception("Freshness", "Old message received", received_timestamp, time.time())
 
     message = text[timestamp_size:]
     return message
@@ -110,12 +110,12 @@ def decompose_message(text, key="0123456701234567", iv="0123456701234567"):
     return fresh_message
 
 def decompose_start(message):
-    #rsa_key = RSA.importKey(open(rsa_key_file, "rb").read())
+    rsa_key = RSA.importKey(open(rsa_key_file, "rb").read())
     #decrypted =  rsa_key.decrypt(message) # TODO swith to recommended. proper padding
-    #decryptor = pkcs1_cipher.new(rsa_key)
-    #decrypted = decryptor.decrypt(message, "ERROR")
+    decryptor = pkcs1_cipher.new(rsa_key)
+    decrypted = decryptor.decrypt(message)
 
-    decrypted = message # TODO RSA
+    #decrypted = message # TODO RSA
     correct_message = check_hash_message(decrypted)
     fresh_message = check_time_message(correct_message)
     return fresh_message
