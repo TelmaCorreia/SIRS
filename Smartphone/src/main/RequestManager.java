@@ -83,8 +83,8 @@ public class RequestManager {
 		HashMap<String, byte[]> map = getSecurityHelper().decomposeMsgSymmetricEncryption(decryptedResponse);
 		if (requestType.equals(START_CONNECTION)){
 			byte[] hash = map.get("hash");
-			//byte[] decryptedHash = getSecurityHelper().decryptAsymmetric(hash);
-			//map.put("hash", decryptedHash);
+			byte[] decryptedHash = getSecurityHelper().decryptAsymmetric(hash);
+			map.put("hash", decryptedHash);
 			return validateResponse(map);
 		}else{
 			return validateResponse(map);
