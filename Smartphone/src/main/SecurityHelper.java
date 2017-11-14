@@ -49,8 +49,8 @@ public class SecurityHelper {
 	public SecurityHelper(){
 		this.fileKey=generateRandom("key.txt");
 		this.initializationVectorFK = generateRandom("iv.txt");
-		this.sessionKey = "0123456701234567".getBytes();
-		this.initializationVectorSK = "0123456701234567".getBytes();
+		this.sessionKey = generateRandom();
+		this.initializationVectorSK = generateRandom();
 		//this.sessionKey = generateRandom();
 		//this.initializationVectorSK = generateRandom();
 	}
@@ -164,7 +164,8 @@ public class SecurityHelper {
 			System.out.println(e.getMessage());
 		}
 
-		return encryptAsymmetric(outputStream.toByteArray());
+		//return encryptAsymmetric(outputStream.toByteArray());
+		return outputStream.toByteArray();
 	}
 	
 	
@@ -172,7 +173,7 @@ public class SecurityHelper {
 	public byte[] encryptAsymmetric(byte[] inputData){
 		try {
 	        PublicKey key= getPublicKey();
-	        Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS5Padding");
+	        Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding");
 	        cipher.init(Cipher.PUBLIC_KEY, key);
 	        byte[] encryptedBytes = cipher.doFinal(inputData);
 

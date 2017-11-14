@@ -22,7 +22,7 @@ import org.apache.commons.codec.binary.Base64;
 
 
 public class MyHttpClient {
-	public static final String START_CONNECTION ="CONNECT";
+	public static final String START_CONNECTION ="";
 	public static final String PING = "PING";
 	public static final String FKEY = "FKEY";
 	public static final String STOP = "STOP";
@@ -48,7 +48,7 @@ public class MyHttpClient {
 
 		MyHttpClient http = new MyHttpClient();
 
-		http.testSymmetric();
+		//http.testSymmetric();
 		
 		try{
 			http.post(url, START_CONNECTION);
@@ -87,12 +87,16 @@ public class MyHttpClient {
 				post.setHeader("content-lenght",String.valueOf(msg.length()));
 				post.setEntity(new StringEntity(msg));
 			
+				System.out.println("\nSending 'POST' request to URL : " + url);
+				System.out.println("RequestType : " + requestType);
+				System.out.println("Post parameters : " + msg);
+				System.out.println("content-lenght : " + msg.length());
+
+				
 				HttpResponse response = client.execute(post);
 		
 				int responseCode = response.getStatusLine().getStatusCode();
 				
-				System.out.println("\nSending 'POST' request to URL : " + url);
-				System.out.println("Post parameters : " + msg);
 				System.out.println("Response Code : " + responseCode);
 			
 				BufferedReader rd = new BufferedReader( new InputStreamReader(response.getEntity().getContent()));

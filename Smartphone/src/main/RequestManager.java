@@ -8,7 +8,7 @@ import org.apache.commons.codec.binary.Base64;
 
 public class RequestManager {
 	
-	public static final String START_CONNECTION ="CONNECT";
+	public static final String START_CONNECTION ="";
 	public static final String PING = "PING";
 	public static final String FKEY = "FKEY";
 	public static final String STOP = "STOP";
@@ -26,7 +26,7 @@ public class RequestManager {
 	
 	public String startConnection(String requestType){
 		byte[] content = getSecurityHelper().composeMsgAsymetricEncryption(getSecurityHelper().getSessionKey());
-		return new String(content);
+		return Base64.encodeBase64String(content);
 	}
 	public String sendFKEY(String requestType){
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -75,8 +75,8 @@ public class RequestManager {
 		HashMap<String, byte[]> map = getSecurityHelper().decomposeMsgSymmetricEncryption(decryptedResponse);
 		if (requestType.equals(START_CONNECTION)){
 			byte[] hash = map.get("hash");
-			byte[] decryptedHash = getSecurityHelper().decryptAsymmetric(hash);
-			map.put("hash", decryptedHash);
+			//byte[] decryptedHash = getSecurityHelper().decryptAsymmetric(hash);
+			//map.put("hash", decryptedHash);
 			return validateResponse(map);
 		}else{
 			return validateResponse(map);
