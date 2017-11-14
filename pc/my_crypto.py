@@ -53,11 +53,13 @@ def hash_message(message):
 def sign_message(message):
     """Returns signed_hash+message"""
     rsa_key = RSA.importKey(open(rsa_key_file, "rb").read())
-    signer = pkcs1_signature.new(rsa_key)
-    hash = SHA256.new()
-    hash.update(message)
-    signature = signer.sign(hash)
-    #message_hash = hash_text(message)
+    #signer = pkcs1_signature.new(rsa_key)
+    #hash = SHA256.new()
+    #hash.update(message)
+    #signature = signer.sign(hash)
+    message_hash = hash_text(message)
+    decryptor = pkcs1_cipher.new(rsa_key)
+    signature = decryptor.encrypt(message)
     #signature = rsa_key.decrypt(message_hash) # TODO switch to recommended signature. proper padding
     return signature + message
 
@@ -122,8 +124,8 @@ def decompose_start(message):
 
 def compose_start(message, key, iv):
     timed = time_message(message)
-    #hashed = sign_message(timed)
-    hashed = hash_message(timed)
+    hashed = sign_message(timed)
+    #hashed = hash_message(timed)
     encrypted = encrypt_string(hashed, key, iv)
     return encrypted
 
