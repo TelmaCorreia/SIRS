@@ -38,7 +38,7 @@ public class SecurityHelper {
 	
 	private final int LENGHT = 16;
 	private final int TOLERANCE = 3;
-	private final String FILENAME = "pk.txt";
+	private final String FILENAME = "..\\public_key.der";
 	private byte[] fileKey; 
 	private byte[] sessionKey;
 	private byte[] initializationVectorFK;
@@ -81,11 +81,11 @@ public class SecurityHelper {
 		    return kf.generatePublic(spec);
 		  
 		} catch (IOException e) {
-			e.printStackTrace();
+			System.out.println(e.getMessage());
 		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
+			System.out.println(e.getMessage());
 		} catch (InvalidKeySpecException e) {
-			e.printStackTrace();
+			System.out.println(e.getMessage());
 		}
 		return null;
 	}
@@ -197,17 +197,14 @@ public class SecurityHelper {
 	//Asymmetric decryption
 		public byte[] decryptAsymmetric(byte[] inputData){
 	
-			byte[] publicKey = this.getPublicKey();
 			try {
-		        PublicKey key= KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(publicKey));
+		        PublicKey key= getPublicKey();
 		        Cipher cipher = Cipher.getInstance("RSA");
 		        cipher.init(Cipher.DECRYPT_MODE, key);
 		        byte[] original= cipher.doFinal(inputData);
 
 		        return original;
 		        
-			} catch (InvalidKeySpecException | NoSuchAlgorithmException e) {
-				System.out.println(e.getMessage());
 			} catch (NoSuchPaddingException e) {
 				System.out.println(e.getMessage());
 			} catch (InvalidKeyException e) {
@@ -215,6 +212,8 @@ public class SecurityHelper {
 			} catch (IllegalBlockSizeException e) {
 				System.out.println(e.getMessage());
 			} catch (BadPaddingException e) {
+				System.out.println(e.getMessage());
+			} catch (NoSuchAlgorithmException e) {
 				System.out.println(e.getMessage());
 			}
 
