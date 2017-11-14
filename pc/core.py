@@ -7,9 +7,9 @@ seconds_until_expiration = 10
 key_size = 16
 
 # Session storage
-stored_key = "0123456701234567" # FIXME ALL "" by default
-session_key = "0123456701234567"
-session_iv = "0123456701234567"
+stored_key = "" # FIXME ALL "" by default
+session_key = ""
+session_iv = ""
 
 def assert_validkey(key):
     if len(key) != key_size:
@@ -43,13 +43,13 @@ def refresh_timer():
 
 def process_raw(text):
     """Throws exceptions on incorrect messages! Must be handled above"""
+    global session_iv
+    global session_key
     if session_key:
         message = my_crypto.decompose_message(text, session_key, session_iv)
         response = process_message(message)
         reply =  my_crypto.compose_message(response, session_key, session_iv)
         if response == "STOP":
-            global session_iv
-            global session_key
             session_iv = ""
             session_key = ""
         return reply

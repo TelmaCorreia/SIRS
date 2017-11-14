@@ -7,6 +7,10 @@ from Crypto.Random import random
 from Crypto import Signature
 from Crypto import Cipher
 
+from Crypto.Cipher import PKCS1_OAEP as pkcs1_cipher
+from Crypto.Signature import PKCS1_v1_5 as pkcs1_signature
+
+
 rsa_key_file = "../private_key.pem"
 
 def hash_text(text):
@@ -49,7 +53,7 @@ def hash_message(message):
 def sign_message(message):
     """Returns signed_hash+message"""
     rsa_key = RSA.importKey(open(rsa_key_file, "rb").read())
-    signer = Signature.PKCS1_v1_5.new(rsa_key)
+    signer = pkcs1_signature.new(rsa_key)
     hash = SHA256.new()
     hash.update(message)
     signature = signer.sign(hash)
@@ -106,19 +110,20 @@ def decompose_message(text, key="0123456701234567", iv="0123456701234567"):
     return fresh_message
 
 def decompose_start(message):
-    rsa_key = RSA.importKey(open(rsa_key_file, "rb").read())
+    #rsa_key = RSA.importKey(open(rsa_key_file, "rb").read())
     #decrypted =  rsa_key.decrypt(message) # TODO swith to recommended. proper padding
-    decryptor = Cipher.PKCS1_v1_5.new(rsa_key)
-    decrypted = decryptor.decrypt(message, "ERROR")
+    #decryptor = pkcs1_cipher.new(rsa_key)
+    #decrypted = decryptor.decrypt(message, "ERROR")
 
-    #decrypted = message # TODO RSA
+    decrypted = message # TODO RSA
     correct_message = check_hash_message(decrypted)
     fresh_message = check_time_message(correct_message)
     return fresh_message
 
 def compose_start(message, key, iv):
     timed = time_message(message)
-    hashed = sign_message(timed)
+    #hashed = sign_message(timed)
+    hashed = hash_message(timed)
     encrypted = encrypt_string(hashed, key, iv)
     return encrypted
 
