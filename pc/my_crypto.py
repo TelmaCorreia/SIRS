@@ -50,7 +50,9 @@ def sign_message(message):
     """Returns signed_hash+message"""
     rsa_key = RSA.importKey(open(rsa_key_file, "rb").read())
     signer = Signature.PKCS1_v1_5.new(rsa_key)
-    signature = signer.sign(message)
+    hash = SHA256.new()
+    hash.update(message)
+    signature = signer.sign(hash)
     #message_hash = hash_text(message)
     #signature = rsa_key.decrypt(message_hash) # TODO switch to recommended signature. proper padding
     return signature + message
