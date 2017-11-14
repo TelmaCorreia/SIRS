@@ -60,6 +60,7 @@ def sign_message(message):
     message_hash = hash_text(message)
     decryptor = pkcs1_cipher.new(rsa_key)
     signature = decryptor.encrypt(message)
+    print len(signature)
     #signature = rsa_key.decrypt(message_hash) # TODO switch to recommended signature. proper padding
     return signature + message
 

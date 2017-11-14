@@ -139,8 +139,24 @@ public class SecurityHelper {
 	public HashMap<String, byte[]> decomposeMsgSymmetricEncryption(byte[] content) {
 		HashMap<String, byte[]> map = new HashMap();
 		map.put("hash", Arrays.copyOfRange(content, 0, 32));
-		map.put("nonce", Arrays.copyOfRange(content, 32, 40));
+		map.put("nonce", Arrays.copyOfRange(content, 32, 36));
 		map.put("data",Arrays.copyOfRange(content, 32, content.length));
+		//System.out.println(map.get("hash"));
+		//System.out.println(map.get("nonce"));
+		//System.out.println(map.get("data"));
+
+		return map;
+	}
+	
+	public HashMap<String, byte[]> decomposeMsgAsymmetricEncryption(byte[] content) {
+		HashMap<String, byte[]> map = new HashMap();
+		map.put("hash", Arrays.copyOfRange(content, 0, 256));
+		map.put("nonce", Arrays.copyOfRange(content, 256, 256+4));
+		map.put("data",Arrays.copyOfRange(content, 256, content.length));
+		//System.out.println(map.get("hash"));
+		//System.out.println(map.get("nonce"));
+		//System.out.println(map.get("data"));
+
 		return map;
 	}
 	

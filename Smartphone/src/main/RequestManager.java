@@ -80,13 +80,15 @@ public class RequestManager {
 		//decrypt message
 		byte[] decryptedResponse = getSecurityHelper().decrypt(Base64.decodeBase64(response));
 		//decompose message
-		HashMap<String, byte[]> map = getSecurityHelper().decomposeMsgSymmetricEncryption(decryptedResponse);
 		if (requestType.equals(START_CONNECTION)){
+			HashMap<String, byte[]> map = getSecurityHelper().decomposeMsgAsymmetricEncryption(decryptedResponse);
 			byte[] hash = map.get("hash");
 			byte[] decryptedHash = getSecurityHelper().decryptAsymmetric(hash);
 			map.put("hash", decryptedHash);
 			return validateResponse(map);
 		}else{
+			HashMap<String, byte[]> map = getSecurityHelper().decomposeMsgSymmetricEncryption(decryptedResponse);
+
 			return validateResponse(map);
 			
 		}
