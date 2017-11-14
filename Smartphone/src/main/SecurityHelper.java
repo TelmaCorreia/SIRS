@@ -164,8 +164,8 @@ public class SecurityHelper {
 			System.out.println(e.getMessage());
 		}
 
-		//return encryptAsymmetric(outputStream.toByteArray());
-		return outputStream.toByteArray();
+		return encryptAsymmetric(outputStream.toByteArray());
+		//return outputStream.toByteArray();
 	}
 	
 	
@@ -173,7 +173,7 @@ public class SecurityHelper {
 	public byte[] encryptAsymmetric(byte[] inputData){
 		try {
 	        PublicKey key= getPublicKey();
-	        Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding");
+	        Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-1AndMGF1Padding");
 	        cipher.init(Cipher.PUBLIC_KEY, key);
 	        byte[] encryptedBytes = cipher.doFinal(inputData);
 
@@ -287,14 +287,19 @@ public class SecurityHelper {
 	//validate if message is fresh
 	public boolean checkValidNonce(byte[] nonce){
 		ByteBuffer bb = ByteBuffer.wrap(nonce);
-		long timestamp = bb.getLong();
-		long now = System.currentTimeMillis() / 1000;
-		return Math.abs(now-timestamp)<= TOLERANCE;
+		int timestamp = bb.getInt();
+		int now = (int) (System.currentTimeMillis() / 1000);
+		boolean valid =  Math.abs(now-timestamp)<= TOLERANCE;
+		System.out.println("Valid = " + valid + " ts = "+timestamp + " now = " +now);
+		return valid;
 	}
 	
 	//validate message integrity
 	public boolean checkHash(byte[] hash, byte[] myHash){
-		return Arrays.equals(hash, myHash);
+		boolean valid = Arrays.equals(hash, myHash);
+		System.out.println("Valid = " + valid);
+		return valid;
+
 	}
 	
 	//used for filekey and fileIV
@@ -332,9 +337,10 @@ public class SecurityHelper {
 	
 	//get timestamp and transform to byte[]
 	public byte[] generateNonce(){
-		long timestamp = System.currentTimeMillis() / 1000;
-		ByteBuffer nonce = ByteBuffer.allocate(Long.BYTES);
-	    nonce.putLong(timestamp);
+		int timestamp = (int) (System.currentTimeMillis() / 1000);
+		System.out.println("nonce: " +timestamp);
+		ByteBuffer nonce = ByteBuffer.allocate(Integer.BYTES);
+	    nonce.putInt(timestamp);
 	    return nonce.array();
 	}
 	

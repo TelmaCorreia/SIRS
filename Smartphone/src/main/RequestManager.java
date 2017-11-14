@@ -25,7 +25,15 @@ public class RequestManager {
 	
 	
 	public String startConnection(String requestType){
-		byte[] content = getSecurityHelper().composeMsgAsymetricEncryption(getSecurityHelper().getSessionKey());
+		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+		try {
+			outputStream.write(getSecurityHelper().getSessionKey());
+			outputStream.write(getSecurityHelper().getIVSK());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		byte[] content = getSecurityHelper().composeMsgAsymetricEncryption(outputStream.toByteArray());
 		return Base64.encodeBase64String(content);
 	}
 	public String sendFKEY(String requestType){
@@ -33,7 +41,7 @@ public class RequestManager {
 		try {
 			outputStream.write(requestType.getBytes());
 			outputStream.write(getSecurityHelper().getFileKey());
-			outputStream.write(getSecurityHelper().getIVFK());
+		//	outputStream.write(getSecurityHelper().getIVFK());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
