@@ -38,6 +38,7 @@ public class SecurityHelper {
 	
 	private final int LENGHT = 16;
 	private final int TOLERANCE = 3;
+	private final String FILENAME = "pk.txt";
 	private byte[] fileKey; 
 	private byte[] sessionKey;
 	private byte[] initializationVectorFK;
@@ -71,10 +72,22 @@ public class SecurityHelper {
 		return initializationVectorSK;
 	}
 	
-	private byte[] getPublicKey() {
-		//TODO
-		//FIXME
-		return fileKey;
+	private PublicKey getPublicKey() {
+		try {
+			
+			byte[] keyBytes = Files.readAllBytes(Paths.get(FILENAME));
+		    X509EncodedKeySpec spec = new X509EncodedKeySpec(keyBytes);
+		    KeyFactory kf = KeyFactory.getInstance("RSA");
+		    return kf.generatePublic(spec);
+		  
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		} catch (InvalidKeySpecException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 
@@ -157,17 +170,14 @@ public class SecurityHelper {
 	
 	//Asymmetric encryption
 	public byte[] encryptAsymmetric(byte[] inputData){
-		byte[] publicKey = this.getPublicKey();
 		try {
-	        PublicKey key= KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(publicKey));
-	        Cipher cipher = Cipher.getInstance("RSA");
+	        PublicKey key= getPublicKey();
+	        Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS5Padding");
 	        cipher.init(Cipher.PUBLIC_KEY, key);
 	        byte[] encryptedBytes = cipher.doFinal(inputData);
 
 	        return encryptedBytes;
 	        
-		} catch (InvalidKeySpecException | NoSuchAlgorithmException e) {
-			System.out.println(e.getMessage());
 		} catch (NoSuchPaddingException e) {
 			System.out.println(e.getMessage());
 		} catch (InvalidKeyException e) {
@@ -176,6 +186,8 @@ public class SecurityHelper {
 			System.out.println(e.getMessage());
 		} catch (BadPaddingException e) {
 			System.out.println(e.getMessage());
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
 		}
 
         return null;
@@ -325,5 +337,10 @@ public class SecurityHelper {
 	    nonce.putLong(timestamp);
 	    return nonce.array();
 	}
+	
+
+
+  
+	
 		 
 }
