@@ -82,10 +82,10 @@ public class RequestManager {
 		//decompose message
 		if (requestType.equals(START_CONNECTION)){
 			HashMap<String, byte[]> map = getSecurityHelper().decomposeMsgAsymmetricEncryption(decryptedResponse);
-			byte[] hash = map.get("hash");
-			byte[] decryptedHash = getSecurityHelper().decryptAsymmetric(hash);
-			map.put("hash", decryptedHash);
-			return validateResponse(map);
+			//byte[] hash = map.get("hash");
+			//byte[] decryptedHash = getSecurityHelper().decryptAsymmetric(hash);
+			//map.put("hash", decryptedHash);
+			return validateResponseStart(map);
 		}else{
 			HashMap<String, byte[]> map = getSecurityHelper().decomposeMsgSymmetricEncryption(decryptedResponse);
 
@@ -100,6 +100,15 @@ public class RequestManager {
 		boolean nonce = getSecurityHelper().checkValidNonce(map.get("nonce"));
 		byte [] myhash = getSecurityHelper().MessageDigest(map.get("data"));
 		boolean hash = getSecurityHelper().checkHash(map.get("hash"), myhash);
+	
+		return (nonce && hash);
+		
+	}
+	
+private boolean validateResponseStart(HashMap<String, byte[]> map) {
+		
+		boolean nonce = getSecurityHelper().checkValidNonce(map.get("nonce"));
+		boolean hash  = getSecurityHelper().verifySignature(map.get("hash"), map.get("data"));
 	
 		return (nonce && hash);
 		

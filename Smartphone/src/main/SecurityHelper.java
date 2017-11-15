@@ -13,8 +13,11 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.PublicKey;
 import java.security.SecureRandom;
+import java.security.Signature;
+import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
@@ -77,6 +80,7 @@ public class SecurityHelper {
 			
 			byte[] keyBytes = Files.readAllBytes(Paths.get(FILENAME));
 		    X509EncodedKeySpec spec = new X509EncodedKeySpec(keyBytes);
+		    System.out.println("key of size " + keyBytes.length);
 		    KeyFactory kf = KeyFactory.getInstance("RSA");
 		    return kf.generatePublic(spec);
 		  
@@ -358,6 +362,28 @@ public class SecurityHelper {
 		ByteBuffer nonce = ByteBuffer.allocate(Integer.BYTES);
 	    nonce.putInt(timestamp);
 	    return nonce.array();
+	}
+
+
+	public boolean verifySignature(byte[] signature, byte[] data) {
+		Signature signature1;
+		try {
+			signature1 = Signature.getInstance("SHA256withRSA");
+			signature1.initVerify(getPublicKey());
+			signature1.update(data);
+			boolean result = signature1.verify(signature);
+			return result;
+		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvalidKeyException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SignatureException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return false;
 	}
 	
 

@@ -19,6 +19,34 @@ def hash_text(text):
     hash.update(text)
     return hash.digest()
 
+msg_counter = 0
+
+def start_session():
+    global msg_counter
+    msg_counter = 0
+
+########################################## COUNTER ##########################################
+counter_format = "I"
+
+def count_message(message):
+    """Returns counter+message"""
+    global msg_counter
+    nonced_message = struct.pack('>'+timestamp_format, msg_counter) + message
+    msg_counter += 1
+    return nonced_message
+
+def check_counter(text):
+    global msg_counter
+    counter_size = struct.calcsize(counter_format)
+    counter_text = text[:counter_size]
+    received_counter = struct.unpack('>'+counter_format, counter_text)[0]
+    if received_counter != msg_counter:
+        raise Exception("Counter", "Wrong message number", received_counter, msg_counter)
+
+    message = text[counter_size:]
+    msg_counter += 1
+    return message
+
 ######################################### FRESHNESS #########################################
 tolerance_seconds = 3
 timestamp_format = "I"
@@ -53,13 +81,15 @@ def hash_message(message):
 def sign_message(message):
     """Returns signed_hash+message"""
     rsa_key = RSA.importKey(open(rsa_key_file, "rb").read())
-    #signer = pkcs1_signature.new(rsa_key)
-    #hash = SHA256.new()
-    #hash.update(message)
-    #signature = signer.sign(hash)
-    message_hash = hash_text(message)
-    decryptor = pkcs1_cipher.new(rsa_key)
-    signature = decryptor.encrypt(message)
+    signer = pkcs1_signature.new(rsa_key)
+    msg_hash = SHA256.new()
+    msg_hash.update(message)
+    signature = signer.sign(msg_hash)
+
+    #message_hash = hash_text(message)
+    #decryptor = pkcs1_cipher.new(rsa_key)
+    #signature = decryptor.encrypt(message)
+    
     print len(signature)
     #signature = rsa_key.decrypt(message_hash) # TODO switch to recommended signature. proper padding
     return signature + message
