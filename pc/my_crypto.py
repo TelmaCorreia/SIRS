@@ -131,7 +131,8 @@ def decrypt_string(encrypted_text, key="0123456701234567", iv="0123456701234567"
 
 ######################################### Stack #########################################
 def compose_message(message, key="0123456701234567", iv="0123456701234567"):
-    timed = time_message(message)
+    counted = count_message(message)
+    timed = time_message(counted)
     hashed = hash_message(timed)
     encrypted = encrypt_string(hashed, key, iv)
     return encrypted
@@ -140,7 +141,8 @@ def decompose_message(text, key="0123456701234567", iv="0123456701234567"):
     decrypted = decrypt_string(text, key, iv)
     correct_message = check_hash_message(decrypted)
     fresh_message = check_time_message(correct_message)
-    return fresh_message
+    counted = check_counter(fresh_message)
+    return counted
 
 def decompose_start(message):
     rsa_key = RSA.importKey(open(rsa_key_file, "rb").read())
@@ -151,10 +153,12 @@ def decompose_start(message):
     #decrypted = message # TODO RSA
     correct_message = check_hash_message(decrypted)
     fresh_message = check_time_message(correct_message)
-    return fresh_message
+    counted = check_counter(fresh_message)
+    return counted
 
 def compose_start(message, key, iv):
-    timed = time_message(message)
+    counted = count_message(message)
+    timed = time_message(counted)
     hashed = sign_message(timed)
     #hashed = hash_message(timed)
     encrypted = encrypt_string(hashed, key, iv)
