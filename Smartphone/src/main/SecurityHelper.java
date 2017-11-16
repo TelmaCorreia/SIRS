@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -46,6 +47,7 @@ public class SecurityHelper {
 	private byte[] sessionKey;
 	private byte[] initializationVectorFK;
 	private byte[] initializationVectorSK;
+	private int counter;
 	
 	
 	
@@ -54,6 +56,7 @@ public class SecurityHelper {
 		this.initializationVectorFK = generateRandom("iv.txt");
 		this.sessionKey = generateRandom();
 		this.initializationVectorSK = generateRandom();
+		this.counter=0;
 		//this.sessionKey = generateRandom();
 		//this.initializationVectorSK = generateRandom();
 	}
@@ -75,12 +78,19 @@ public class SecurityHelper {
 		return initializationVectorSK;
 	}
 	
+	public int getCounter(){
+		return counter;
+	}
+	
+
+	public void incrementCounter(int count){
+		this.counter= count+1;
+	}
 	private PublicKey getPublicKey() {
 		try {
 			
 			byte[] keyBytes = Files.readAllBytes(Paths.get(FILENAME));
 		    X509EncodedKeySpec spec = new X509EncodedKeySpec(keyBytes);
-		    System.out.println("key of size " + keyBytes.length);
 		    KeyFactory kf = KeyFactory.getInstance("RSA");
 		    return kf.generatePublic(spec);
 		  
@@ -116,15 +126,16 @@ public class SecurityHelper {
 	//Compose Symmetric message: (content of the message) -> hash + nonce + msg
 	public byte[] composeMsgSymetricEncryption(byte[] content) {
 		byte[] nonce = generateNonce();
+		byte[] counter = ByteBuffer.allocate(4).putInt(getCounter()).array();
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 		try {
 			outputStream.write(nonce);
+			outputStream.write(counter);
 			outputStream.write(content);
 		} catch (IOException e) {
 			System.out.println(e.getMessage());
 		}
 		byte data[] = outputStream.toByteArray( );
-		
 
 		byte[] hash = MessageDigest(data);
 		outputStream = new ByteArrayOutputStream();
@@ -143,7 +154,8 @@ public class SecurityHelper {
 	public HashMap<String, byte[]> decomposeMsgSymmetricEncryption(byte[] content) {
 		HashMap<String, byte[]> map = new HashMap();
 		map.put("hash", Arrays.copyOfRange(content, 0, 32));
-		map.put("nonce", Arrays.copyOfRange(content, 32, 36));
+		map.put("nonce", Arrays.copyOfRange(content, 32, 32+4));
+		map.put("counter", Arrays.copyOfRange(content, 36, 36+4));
 		map.put("data",Arrays.copyOfRange(content, 32, content.length));
 		//System.out.println(map.get("hash"));
 		//System.out.println(map.get("nonce"));
@@ -156,6 +168,7 @@ public class SecurityHelper {
 		HashMap<String, byte[]> map = new HashMap();
 		map.put("hash", Arrays.copyOfRange(content, 0, 256));
 		map.put("nonce", Arrays.copyOfRange(content, 256, 256+4));
+		map.put("counter", Arrays.copyOfRange(content, 260, 260+4));
 		map.put("data",Arrays.copyOfRange(content, 256, content.length));
 		//System.out.println(map.get("hash"));
 		//System.out.println(map.get("nonce"));
@@ -167,14 +180,18 @@ public class SecurityHelper {
 	//Compose Asymmetric message: (content of the message) -> hash + nonce + msg
 	public byte[] composeMsgAsymetricEncryption(byte[] content) {
 		byte[] nonce = generateNonce();
+		byte[] counter = ByteBuffer.allocate(4).putInt(getCounter()).array();
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 		try {
 			outputStream.write(nonce);
+			outputStream.write(counter);
 			outputStream.write(content);
 		} catch (IOException e) {
 			System.out.println(e.getMessage());
 		}
 		byte data[] = outputStream.toByteArray( );
+		System.out.println("counter sent: "+ counter);
+
 		byte[] hash = MessageDigest(data);
 		outputStream = new ByteArrayOutputStream();
 		try {
@@ -185,7 +202,6 @@ public class SecurityHelper {
 		}
 
 		return encryptAsymmetric(outputStream.toByteArray());
-		//return outputStream.toByteArray();
 	}
 	
 	
@@ -237,12 +253,10 @@ public class SecurityHelper {
 			} catch (NoSuchAlgorithmException e) {
 				System.out.println(e.getMessage());
 			}
-
 	        return null;
-	 
+	        
 	    }
 	
-
 	//Symmetric Encryption
 	public byte[] encrypt(byte[] value){
 		
@@ -384,6 +398,22 @@ public class SecurityHelper {
 			e.printStackTrace();
 		}
 		return false;
+	}
+
+
+	public boolean checkValidCounter(byte[] counter) {
+	    
+	   ByteBuffer bb = ByteBuffer.wrap(counter);
+	   // bb.order(ByteOrder.LITTLE_ENDIAN);
+	   int count = bb.getInt();
+	   int prevCounter = getCounter();
+	   boolean valid = false;
+	   if ((count-1)==prevCounter){
+		   valid = true;
+		   incrementCounter(count);
+	   }
+		
+		return valid;
 	}
 	
 

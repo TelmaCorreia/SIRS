@@ -98,27 +98,25 @@ public class RequestManager {
 	private boolean validateResponse(HashMap<String, byte[]> map) {
 		
 		boolean nonce = getSecurityHelper().checkValidNonce(map.get("nonce"));
+		boolean counter = getSecurityHelper().checkValidCounter(map.get("counter"));
 		byte [] myhash = getSecurityHelper().MessageDigest(map.get("data"));
 		boolean hash = getSecurityHelper().checkHash(map.get("hash"), myhash);
 	
-		return (nonce && hash);
+		return (nonce && hash && counter);
 		
 	}
 	
 private boolean validateResponseStart(HashMap<String, byte[]> map) {
 		
 		boolean nonce = getSecurityHelper().checkValidNonce(map.get("nonce"));
+		boolean counter = getSecurityHelper().checkValidCounter(map.get("counter"));
 		boolean hash  = getSecurityHelper().verifySignature(map.get("hash"), map.get("data"));
 	
-		return (nonce && hash);
+		return (nonce && hash && counter);
 		
 	}
 
-	public String test(String string) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	 
+	
 	
 	
 

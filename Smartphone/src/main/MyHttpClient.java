@@ -67,15 +67,6 @@ public class MyHttpClient {
   }
 	
 
-	  
-	  private void testSymmetric() {
-		  		  
-		  String msg = getRequestManager().sendFKEY(FKEY);
-		  boolean valid = getRequestManager().processResponse(FKEY, msg);
-		  System.out.println("Valid: "+ valid );
-		  
-	}
-	
 
 	private void post(String url, String requestType) throws Exception {
 		  	
