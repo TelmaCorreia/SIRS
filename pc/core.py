@@ -60,9 +60,15 @@ def process_raw(text):
             session_key = ""
         return reply
     else:
+        my_crypto.start_session()
+        print "CORE: Processing assymetric message"
         message = my_crypto.decompose_start(text)
+        print "CORE: Decomposed asymmetric message"
         response = start_session(message)
-        return my_crypto.compose_start(response, session_key, session_iv)
+        print "CORE: Started session"
+        reply = my_crypto.compose_start(response, session_key, session_iv)
+        print "CORE: Composed signed message"
+        return reply
 
 def process_message(message):
     print "Processing symmetric message:", message
