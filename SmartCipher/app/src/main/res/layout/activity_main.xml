@@ -6,12 +6,13 @@
     android:layout_height="match_parent"
     android:gravity="center"
     android:orientation="vertical"
-    tools:context="com.sirs.smartcipher.MainActivity">
+    tools:context="com.sirs.smartcipher.ui.MainActivity">
 
-    <ImageButton
+    <Button
+        android:id="@+id/btn_start"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:src="@drawable/start"/>
+        android:background="@drawable/start"/>
 
 </LinearLayout>
