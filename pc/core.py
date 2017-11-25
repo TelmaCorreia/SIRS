@@ -1,5 +1,7 @@
+import time
 import file_encription
 import my_crypto
+from threading import Lock, Timer
 
 # Configuration
 folder = "folder"
@@ -10,6 +12,9 @@ key_size = 16
 stored_key = "" # FIXME ALL "" by default
 session_key = ""
 session_iv = ""
+
+lock = Lock()
+last_communication = None
 
 def assert_validkey(key):
     if len(key) != key_size:
@@ -24,9 +29,29 @@ def on_receiving_key(key):
 
 def on_close():
     global stored_key
-    file_encription.encrypt_files(stored_key, folder)
-    stored_key = ""
-    # TODO stop timer
+    global session_iv
+    global session_key
+    if stored_key:
+        file_encription.encrypt_files(stored_key, folder)
+        stored_key = ""
+    if session_key:
+        session_iv = ""
+        session_key = ""
+    print "SESSION CLOSED"
+
+
+timer_tolerance_seconds = 10
+timer_frequency = 20.0
+
+def timer_action():
+    with lock:
+        print "Timer checking in"
+        now = int(time.time())
+        if last_communication and abs(now-last_communication) <= timer_tolerance_seconds:
+            # All good, start another Timer
+            Timer(timer_frequency, timer_action).start()
+        else:
+            on_close()
 
 def start_session(message):
     if len(message) != key_size*2:
@@ -35,7 +60,8 @@ def start_session(message):
     global session_key
     session_key = message[:key_size]
     session_iv = message[key_size:]
-    # TODO start timer
+    Timer(timer_frequency, timer_action).start()
+
     return "OKOK"
 
 def refresh_timer():
@@ -43,7 +69,21 @@ def refresh_timer():
 
 def process_raw(text):
     """Throws exceptions on incorrect messages! Must be handled above"""
+    with lock:
+        try:
+            res = process_raw_aux(text)
+        except Exception as e:
+            on_close()
+            raise e
+        else:
+            global last_communication
+            last_communication = int(time.time())
+        
+    return res
+        
 
+def process_raw_aux(text):
+    """Throws exceptions on incorrect messages! Must be handled above"""
     print "RAW:", text
     global session_iv
     global session_key
