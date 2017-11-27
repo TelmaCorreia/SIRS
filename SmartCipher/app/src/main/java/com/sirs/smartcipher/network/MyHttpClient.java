@@ -5,6 +5,7 @@ import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.util.Log;
 
+import com.sirs.smartcipher.Constants;
 import com.sirs.smartcipher.RequestManager;
 
 import org.apache.http.HttpResponse;
@@ -37,9 +38,12 @@ import javax.crypto.NoSuchPaddingException;
  * Created by telma on 11/21/2017.
  */
 
-public class MyHttpClient extends AsyncTask<String, String, String[]> {
+public class MyHttpClient extends Thread { //extends AsyncTask<String, String, String[]> {
 
     private static final String TAG = "running";
+
+    String url = "http://10.0.2.2";
+    public static final int TIME_INTERVAL = 3000;
 
     private RequestManager rm;
 
@@ -50,7 +54,28 @@ public class MyHttpClient extends AsyncTask<String, String, String[]> {
     }
 
     @Override
-    protected String[] doInBackground(String... strings) {
+    public void run() {
+        try{
+            String[] response;
+            response = this.post_request(url, Constants.START_CONNECTION);
+            processResponse(response);
+            response = post_request(url, Constants.FKEY);
+            processResponse(response);
+            while(true){
+                response = post_request(url, Constants.PING);
+                processResponse(response);
+                Thread.sleep(TIME_INTERVAL);
+            }
+            //http.post(url, STOP);
+        }
+        catch (Exception e) {
+            //TODO FIXME I'm very sorry
+            System.out.println(e.getMessage());
+        }
+    }
+
+//    @Override
+    protected String[] post_request(String... strings) {
         String msg = "";
         HttpPost post = new HttpPost(strings[0]);
 
@@ -117,7 +142,7 @@ public class MyHttpClient extends AsyncTask<String, String, String[]> {
         return new String[1];
     }
 
-    protected void onPostExecute(String[] result) {
+    protected void processResponse(String[] result) {
         try {
             if(!rm.processResponse(result[0], result[1])){
                 Log.d(TAG, "*** WARNING: Ivalid Response! ***");

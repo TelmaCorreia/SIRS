@@ -43,6 +43,17 @@ public class MainActivity extends AppCompatActivity {
 
                 try {
 
+                    if(count == 0) {
+                        count++;
+                        MyHttpClient http = new MyHttpClient();
+                        http.start();
+
+                    }
+                    else {
+                        ; // Do nothing
+                    }
+                    return;
+/*
                     MyHttpClient http = new MyHttpClient();
 
                     if(count==0){ count ++; http.execute(url, Constants.START_CONNECTION);}
@@ -55,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
 //                       http.execute(url, Constants.PING);
 //                        Thread.sleep(Constants.TIME_INTERVAL);
 //                    }
-
+*/
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
