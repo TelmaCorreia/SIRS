@@ -26,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "running";
     Button btn;
     int count =0;
+    Boolean active = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,9 +44,9 @@ public class MainActivity extends AppCompatActivity {
 
                 try {
 
-                    if(count == 0) {
-                        count++;
-                        MyHttpClient http = new MyHttpClient();
+                    if(!active) {
+                        active = true;
+                        MyHttpClient http = new MyHttpClient(active);
                         http.start();
 
                     }

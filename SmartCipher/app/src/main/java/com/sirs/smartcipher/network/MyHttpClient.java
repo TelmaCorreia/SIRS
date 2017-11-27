@@ -47,10 +47,13 @@ public class MyHttpClient extends Thread { //extends AsyncTask<String, String, S
 
     private RequestManager rm;
 
-    public MyHttpClient() throws CertificateException, InvalidAlgorithmParameterException,
+    private Boolean active;
+
+    public MyHttpClient(Boolean active) throws CertificateException, InvalidAlgorithmParameterException,
             NoSuchAlgorithmException, KeyStoreException, NoSuchProviderException,
             UnrecoverableEntryException, IOException {
         rm = new RequestManager();
+        this.active = active;
     }
 
     @Override
@@ -61,7 +64,7 @@ public class MyHttpClient extends Thread { //extends AsyncTask<String, String, S
             processResponse(response);
             response = post_request(url, Constants.FKEY);
             processResponse(response);
-            while(true){
+            while(active){
                 response = post_request(url, Constants.PING);
                 processResponse(response);
                 Thread.sleep(TIME_INTERVAL);
