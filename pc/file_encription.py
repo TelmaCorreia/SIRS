@@ -2,7 +2,7 @@ import os, struct
 from Crypto.Cipher import AES
 from Crypto.Random import random
 
-integrity_verifier = "ALL_OK"
+integrity_verifier = "EVERYTHINGOK_THIS_STRING_IS_KNOWN_bUT KINDA big1234567890"
 max_padding_size = 16
 verifier_size = len(integrity_verifier)
 tail_size = max_padding_size + verifier_size

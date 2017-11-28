@@ -3,6 +3,7 @@ import file_encription
 import BaseHTTPServer
 import base64
 import core
+import gui
 
 class MYHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
@@ -33,5 +34,6 @@ def run(server_class=BaseHTTPServer.HTTPServer,
     httpd = server_class(server_address, handler_class)
     httpd.serve_forever()
 
+gui.show_public()
 print "starting http server"
 run()

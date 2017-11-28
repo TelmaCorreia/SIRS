@@ -1,5 +1,6 @@
 import bluetooth
 import core
+import gui
 
 first_message_size = 256 #in bytes, NOT USING BASE64
 fkey_message_size = 64 
@@ -57,6 +58,7 @@ class My_Bluetooth_Server():
         server_sock.close()
 
 
+gui.show_public()
 print "starting bluetooth server"
 server = My_Bluetooth_Server()
 server.create_server()
