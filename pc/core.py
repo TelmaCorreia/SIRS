@@ -22,10 +22,10 @@ def assert_validkey(key):
     if stored_key != "":
         raise Exception("Folder key already defined")
 
-def on_receiving_key(key):
+def on_receiving_key(old_key, new_key):
     global stored_key
-    stored_key = key
-    file_encription.decrypt_files(key, folder)
+    file_encription.decrypt_files(old_key, folder)
+    stored_key = new_key
 
 def on_close():
     global stored_key
@@ -34,10 +34,14 @@ def on_close():
     if stored_key:
         file_encription.encrypt_files(stored_key, folder)
         del stored_key
+        stored_key =""
     if session_key:
         del session_iv
+        session_iv =""
         del session_key
+        session_key = ""
     print "SESSION CLOSED"
+    print "="*64
 
 
 timer_tolerance_seconds = 10
@@ -121,7 +125,7 @@ def process_message(message):
         print "FKEY using key", key, "with len", len(key)
         assert_validkey(key)
         print "FKEY is valid"
-        on_receiving_key(key)
+        on_receiving_key(key, key)
         print "Files decrypted"
         return "PING"
 

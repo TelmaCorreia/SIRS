@@ -101,27 +101,38 @@ def decrypt_file(key, in_filename, out_filename=None, chunksize=24*1024):
 
 
 def decrypt_files(key, folder):
-    for root, dirnames, filenames in os.walk(folder):
-        for filename in filenames:
-            print "decripting", root+"/"+filename
-            try:
-                decrypt_file(key, root+"/"+filename, "tmpfile.tmp")
-            except Exception as e:
-                os.remove("tmpfile.tmp")
-                raise e
-            # TODO(?) shred plain file?
-            os.remove(root+"/"+filename)
-            os.rename("tmpfile.tmp", root+"/"+filename)
+    plain_files = []
+
+    try:
+        for root, dirnames, filenames in os.walk(folder):
+            for filename in filenames:
+                print "decripting", root+"/"+filename
+                try:
+                    decrypt_file(key, root+"/"+filename, "tmpfile.tmp")
+                except Exception as e:
+                    os.remove("tmpfile.tmp")
+                    raise e
+                # TODO(?) shred plain file?
+                os.remove(root+"/"+filename)
+                os.rename("tmpfile.tmp", root+"/"+filename)
+                plain_files.append(root+"/"+filename)
+    except Exception as e:
+        for file in plain_files:
+            encrypt_file_using_tmp(key, file)
+
+def encrypt_file_using_tmp(key, file):
+    encrypt_file(key, file, "tmpfile.tmp")
+    os.remove(file)
+    os.rename("tmpfile.tmp", file)
 
 
 def encrypt_files(key, folder):
     for root, dirnames, filenames in os.walk(folder):
         for filename in filenames:
             print "encripting", filename
-            encrypt_file(key, root+"/"+filename, "tmpfile.tmp")
-            # TODO(?) shred plain file?
-            os.remove(root+"/"+filename)
-            os.rename("tmpfile.tmp", root+"/"+filename)
+            file = root+"/"+filename
+            encrypt_file_using_tmp(key, file)
+            
 
 
 if __name__ == "__main__":
