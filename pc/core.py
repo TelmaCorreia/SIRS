@@ -33,10 +33,10 @@ def on_close():
     global session_key
     if stored_key:
         file_encription.encrypt_files(stored_key, folder)
-        stored_key = ""
+        del stored_key
     if session_key:
-        session_iv = ""
-        session_key = ""
+        del session_iv
+        del session_key
     print "SESSION CLOSED"
 
 
@@ -79,12 +79,13 @@ def process_raw(text):
             global last_communication
             last_communication = int(time.time())
         
+    print "\n\n"
     return res
         
 
 def process_raw_aux(text):
     """Throws exceptions on incorrect messages! Must be handled above"""
-    print "RAW:", text
+    print "RAW: size:", len(text), "bytes" #, text
     global session_iv
     global session_key
     if session_key:

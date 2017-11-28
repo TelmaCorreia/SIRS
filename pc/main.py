@@ -21,7 +21,7 @@ class MYHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         content_len = int(self.headers.getheader('content-length', 0))
         print "content-lenght", content_len
         incoming = self.rfile.read(content_len)
-        print "received", incoming, "with len", len(incoming)
+        #print "received", incoming, "with len", len(incoming)
         text = base64.b64decode(incoming)
 
         message = core.process_raw(text)
@@ -33,4 +33,5 @@ def run(server_class=BaseHTTPServer.HTTPServer,
     httpd = server_class(server_address, handler_class)
     httpd.serve_forever()
 
+print "starting http server"
 run()
