@@ -165,7 +165,7 @@ public class MyBluetoothClient extends Thread { //extends AsyncTask<String, Stri
     public void run() {
         connection = new Connection(pc);
         connection.connect();
-
+        String url= "http://10.0.2.2";
         try{
             String[] response;
             response = this.post_request(url, Constants.START_CONNECTION);
