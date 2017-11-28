@@ -18,8 +18,8 @@ class My_Bluetooth_Server():
         server_sock.listen(1)
         #print "listening on port %d" % port
 
-        #uuid = "1e0ca4ea-299d-4335-93eb-27fcfe7fa848"
-        #bluetooth.advertise_service( server_sock, "SecureFiles", uuid )
+        uuid = "1e0ca4ea-299d-4335-93eb-27fcfe7fa848"
+        bluetooth.advertise_service( server_sock, "SecureFiles", uuid, service_classes = [uuid, bluetooth.SERIAL_PORT_CLASS ])
 
         self.server_sock = server_sock
 
