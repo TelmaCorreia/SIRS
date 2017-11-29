@@ -58,7 +58,7 @@ class My_Bluetooth_Server():
         server_sock.close()
 
 
-gui.show_public()
+core.initialize()
 print "starting bluetooth server"
 server = My_Bluetooth_Server()
 server.create_server()

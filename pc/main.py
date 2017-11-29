@@ -34,6 +34,6 @@ def run(server_class=BaseHTTPServer.HTTPServer,
     httpd = server_class(server_address, handler_class)
     httpd.serve_forever()
 
-gui.show_public()
+core.initialize()
 print "starting http server"
 run()

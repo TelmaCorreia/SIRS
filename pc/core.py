@@ -1,6 +1,8 @@
 import time
 import file_encription
 import my_crypto
+import gui
+import shutdown
 from threading import Lock, Timer
 
 # Configuration
@@ -15,6 +17,16 @@ session_iv = ""
 
 lock = Lock()
 last_communication = None
+
+def locked_closer(arg = None):
+    print "Handling signal, with arg", arg
+    with lock:
+        on_close()
+
+def initialize():
+    gui.show_public()
+    shutdown.register_function(locked_closer)
+
 
 def assert_validkey(key):
     if len(key) != key_size:
@@ -35,11 +47,13 @@ def on_close():
         file_encription.encrypt_files(stored_key, folder)
         del stored_key
         stored_key =""
+        print "FOLDER KEY DELETED"
     if session_key:
         del session_iv
         session_iv =""
         del session_key
         session_key = ""
+        print "SESSION KEY DELETED"
     print "SESSION CLOSED"
     print "="*64
 
