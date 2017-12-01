@@ -125,7 +125,7 @@ def process_raw_aux(text):
         print "CORE: Decomposed asymmetric message"
         response = start_session(message)
         print "CORE: Started session"
-        reply = my_crypto.compose_start(response, session_key, session_iv)
+        reply = my_crypto.compose_message(response, session_key, session_iv)
         print "CORE: Composed signed message"
         return reply
 
