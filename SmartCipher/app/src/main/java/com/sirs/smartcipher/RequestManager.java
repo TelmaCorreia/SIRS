@@ -80,7 +80,6 @@ public class RequestManager {
         outputStream.write(getSecurityHelper().getOldFileKey());
 
 
-
         byte[] content = getSecurityHelper().composeMsgSymetricEncryption(outputStream.toByteArray());
 
         return  Base64.encodeToString(content, NO_WRAP);

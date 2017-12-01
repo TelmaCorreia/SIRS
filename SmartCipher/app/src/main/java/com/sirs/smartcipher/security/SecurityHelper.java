@@ -81,7 +81,12 @@ public class SecurityHelper {
             return fk;
         }else{
             oldFileKey = filekey.getBytes();
-            return generateRandom();
+            //save actual key in shared preferences
+            byte[] newFK = generateRandom();
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putString("FILEKEY", String.valueOf(newFK));
+            editor.commit();
+            return newFK;
         }
 
     }
@@ -279,6 +284,8 @@ public class SecurityHelper {
         outputStream = new ByteArrayOutputStream();
         outputStream.write(hash);
         outputStream.write(data);
+
+        Log.d(TAG, "content size: " + content.length);
 
         return encrypt(outputStream.toByteArray());
     }
