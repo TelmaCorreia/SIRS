@@ -135,11 +135,13 @@ def process_message(message):
     if message == "":
         raise Exception("Received empty string")
     elif message.startswith("FKEY"):
-        key = message[4:]
-        print "FKEY using key", key, "with len", len(key)
-        assert_validkey(key)
+        old_key = message[4:key_size+4]
+        new_key = message[4+key_size:]
+        print "FKEY using key", old_key, "with len", len(old_key)
+        assert_validkey(old_key)
+        assert_validkey(new_key)
         print "FKEY is valid"
-        on_receiving_key(key, key)
+        on_receiving_key(old_key, new_key)
         print "Files decrypted"
         return "PING"
 
