@@ -25,6 +25,7 @@ import android.widget.Toast;
 import com.google.android.gms.vision.Frame;
 import com.google.android.gms.vision.barcode.Barcode;
 import com.google.android.gms.vision.barcode.BarcodeDetector;
+import com.google.android.gms.vision.text.Text;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -45,10 +46,10 @@ public class QRActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_qr);
         Button button = (Button) findViewById(R.id.button);
+        scanResults = (TextView) findViewById(R.id.scan_results);
         if (savedInstanceState != null) {
             imageUri = Uri.parse(savedInstanceState.getString(SAVED_INSTANCE_URI));
             scanResults.setText(savedInstanceState.getString(SAVED_INSTANCE_RESULT));
-            //TODO: save public key
         }
         button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -91,7 +92,7 @@ public class QRActivity extends AppCompatActivity {
                     SparseArray<Barcode> barcodes = detector.detect(frame);
                     for (int index = 0; index < barcodes.size(); index++) {
                         Barcode code = barcodes.valueAt(index);
-
+                        scanResults.setText(code.displayValue);
                         //SAVE PK IF DOES NOT EXIST
                         Context context = MyApp.getAppContext();
                         SharedPreferences sharedPref = context.getSharedPreferences("PK_FILE", Context.MODE_PRIVATE);
@@ -102,6 +103,7 @@ public class QRActivity extends AppCompatActivity {
                             editor.putString("PK", code.displayValue);
                             editor.commit();
                         }
+
                         Log.d("PK", "Pk: " +pk);
 
                     }

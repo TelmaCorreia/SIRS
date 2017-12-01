@@ -1,11 +1,14 @@
 package com.sirs.smartcipher.network;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.sirs.smartcipher.Constants;
+import com.sirs.smartcipher.MyApp;
 import com.sirs.smartcipher.RequestManager;
 
 import org.apache.http.HttpResponse;
@@ -73,11 +76,11 @@ public class MyHttpClient extends Thread { //extends AsyncTask<String, String, S
         }
         catch (Exception e) {
             //TODO FIXME I'm very sorry
+            Log.d(TAG, "Failed connection, please make sure your key is up to date");
             System.out.println(e.getMessage());
         }
     }
 
-//    @Override
     protected String[] post_request(String... strings) {
         String msg = "";
         HttpPost post = new HttpPost(strings[0]);
@@ -92,7 +95,6 @@ public class MyHttpClient extends Thread { //extends AsyncTask<String, String, S
             System.out.println("RequestType : " +  requestType);
             System.out.println("Post parameters : " + msg);
             System.out.println("content-lenght : " + msg.length());
-
 
             HttpResponse response = client.execute(post);
 

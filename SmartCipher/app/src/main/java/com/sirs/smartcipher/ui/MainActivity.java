@@ -1,7 +1,9 @@
 package com.sirs.smartcipher.ui;
 
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
@@ -10,8 +12,10 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.sirs.smartcipher.Constants;
+import com.sirs.smartcipher.MyApp;
 import com.sirs.smartcipher.QRActivity;
 import com.sirs.smartcipher.R;
 import com.sirs.smartcipher.network.MyHttpClient;
@@ -25,6 +29,9 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.UnrecoverableEntryException;
 import java.security.cert.CertificateException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -50,7 +57,9 @@ public class MainActivity extends AppCompatActivity {
                 String url = "http://10.0.2.2";
                 Log.d(TAG, "*** client started ***");
                 String text = (String) tv_log.getText();
-                tv_log.setText(text + "Connection Started");
+                Date date = new Date();
+                SimpleDateFormat df = new SimpleDateFormat("HH:MM:ss");
+                tv_log.setText(text +"\n"+ df.format(date)+ ": Connection Started");
                 try {
 
                     if(!active) {
@@ -61,13 +70,16 @@ public class MainActivity extends AppCompatActivity {
                     }
                     else {
                         // Do nothing
+                        Context context = MyApp.getAppContext();
+                        Toast.makeText(context, "Failed connection, please make sure your key is up to date", Toast.LENGTH_SHORT).show();
+                        tv_log.setText(text +"\n"+ df.format(date)+ ": Connection Terminated");
+
                     }
                     return;
 
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                Log.d(TAG, "*** client terminated ***");
             }
         });
 

@@ -1,8 +1,10 @@
 package com.sirs.smartcipher.security;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.sirs.smartcipher.Constants;
 import com.sirs.smartcipher.MyApp;
@@ -46,6 +48,7 @@ public class SecurityHelper {
     private static final String TAG = "SecurityHelper";
     private byte[] fileKey;
     private byte[] sessionKey;
+    private byte[] oldFileKey;
     private byte[] initializationVectorSK;
     private int counter;
     private KeyStore mStore;
@@ -54,39 +57,47 @@ public class SecurityHelper {
             KeyStoreException, IOException, InvalidAlgorithmParameterException,
             UnrecoverableEntryException, NoSuchProviderException {
 
-        loadKeyStore();
-        this.fileKey = generateRandom();//fixme
+        this.fileKey = getFileKey();//fixme
         this.sessionKey = generateRandom();
         this.initializationVectorSK = generateRandom();
         this.counter = 0;
 
     }
 
-    void loadKeyStore() throws KeyStoreException, CertificateException, NoSuchAlgorithmException,
-            IOException {
-        mStore = KeyStore.getInstance(Constants.KEYSTORE_PROVIDER);
-        mStore.load(null);
-    }
 
     public byte[] getFileKey() throws KeyStoreException, CertificateException,
             NoSuchAlgorithmException, InvalidAlgorithmParameterException, NoSuchProviderException,
             IOException, UnrecoverableEntryException {
-        return fileKey;
-      /*  if(!mStore.containsAlias(Constants.AES_KEY_ALIAS)){
-            //fixme
-            //return generateAESKey();
-            fileKey = generateRandom();
-            return fileKey;
+
+        Context context = MyApp.getAppContext();
+        SharedPreferences sharedPref = context.getSharedPreferences("PK_FILE", Context.MODE_PRIVATE);
+        String filekey = sharedPref.getString("FILEKEY", "");
+        if (!sharedPref.contains("FILEKEY")){
+            byte[] fk= generateRandom();
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putString("FILEKEY", String.valueOf(fk));
+            editor.commit();
+            oldFileKey = fk;
+            return fk;
         }else{
-            KeyStore.SecretKeyEntry entry = (KeyStore.SecretKeyEntry)
-                    mStore.getEntry(Constants.AES_KEY_ALIAS, null);
-            return entry.getSecretKey().getEncoded();
-        }*/
+            oldFileKey = filekey.getBytes();
+            return generateRandom();
+        }
+
+    }
+
+    public byte[] getOldFileKey(){
+        return oldFileKey;
     }
 
     public byte[] getSessionKey() {
         return sessionKey;
     }
+
+    public byte[] getOldSessionKey() {
+        return sessionKey;
+    }
+
 
     public byte[] getIVSK() {
         return initializationVectorSK;
@@ -100,18 +111,37 @@ public class SecurityHelper {
         this.counter = count + 1;
     }
 
-    //FIXME
     private PublicKey getPublicKey() throws NoSuchAlgorithmException, KeyStoreException,
             IOException, InvalidKeySpecException {
-
-        //FIXME: it works?
         byte[] keyBytes = readFromfile(Constants.FILENAME, MyApp.getAppContext());
         X509EncodedKeySpec spec = new X509EncodedKeySpec(keyBytes);
         KeyFactory kf = KeyFactory.getInstance("RSA");
         PublicKey pk = kf.generatePublic(spec);
+
         return pk;
 
     }
+
+    /** Use only if you are on a real device **/
+//    private PublicKey getPublicKey() throws NoSuchAlgorithmException, KeyStoreException,
+//            IOException, InvalidKeySpecException {
+//
+//        //SAVE PK IF DOES NOT EXIST
+//        Context context = MyApp.getAppContext();
+//        SharedPreferences sharedPref = context.getSharedPreferences("PK_FILE", Context.MODE_PRIVATE);
+//        String pubkey = sharedPref.getString("PK", "");
+//        if (!sharedPref.contains("PK") ){
+//            Log.d("PK", "No publick key associated");
+//            return null;
+//        }else {
+//            byte[] keyBytes = pubkey.getBytes();
+//            X509EncodedKeySpec spec = new X509EncodedKeySpec(keyBytes);
+//            KeyFactory kf = KeyFactory.getInstance("RSA");
+//            PublicKey pk = kf.generatePublic(spec);
+//            return pk;
+//        }
+//
+//    }
 
 
     public byte[] readFromfile(String fileName, Context context) {
