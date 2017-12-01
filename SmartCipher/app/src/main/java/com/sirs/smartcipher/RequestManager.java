@@ -59,10 +59,6 @@ public class RequestManager {
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         try {
-
-            Log.d("teste", String.valueOf(getSecurityHelper().getSessionKey()));
-            Log.d("teste", String.valueOf(getSecurityHelper().getIVSK()));
-
             outputStream.write(getSecurityHelper().getSessionKey());
             outputStream.write(getSecurityHelper().getIVSK());
         } catch (IOException e) {
@@ -128,7 +124,8 @@ public class RequestManager {
         //decompose message
         if (requestType.equals(START_CONNECTION)){
             HashMap<String, byte[]> map = getSecurityHelper().decomposeMsgAsymmetricEncryption(decryptedResponse);
-            return validateResponseStart(map);
+            return validateResponse(map);
+            //return validateResponseStart(map);
         }else{
             HashMap<String, byte[]> map = getSecurityHelper().decomposeMsgSymmetricEncryption(decryptedResponse);
 
