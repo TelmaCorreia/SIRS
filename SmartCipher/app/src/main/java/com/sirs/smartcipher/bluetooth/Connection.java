@@ -20,7 +20,7 @@ import java.util.UUID;
  * Created by telma on 12/1/2017.
  */
 
-public class Connection {
+public class Connection extends Thread{
 
     private static final String TAG = "CONNECTION" ;
     private final BluetoothSocket mmSocket;

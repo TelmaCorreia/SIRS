@@ -3,6 +3,7 @@ package com.sirs.smartcipher.bluetooth;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.util.Log;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -51,7 +52,7 @@ import static android.support.v4.app.ActivityCompat.startActivityForResult;
  */
 
 
-public class MyBluetoothClient extends Thread {
+public class MyBluetoothClient {
 
     private static final String TAG = "running";
 
@@ -64,12 +65,35 @@ public class MyBluetoothClient extends Thread {
     BluetoothDevice pc;
     Connection connection;
 
+    ArrayList<BluetoothDevice> mArrayAdapter = new ArrayList<>();
+
+
     private Boolean active;
+
+    // Create a BroadcastReceiver for ACTION_FOUND
+    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            // When discovery finds a device
+            if (BluetoothDevice.ACTION_FOUND.equals(action)) {
+                // Get the BluetoothDevice object from the Intent
+                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                // Add the name and address to an array adapter to show in a ListView
+                Log.d(TAG, device.getName());
+                mArrayAdapter.add(device);
+
+                pc=device;
+                run(pc);
+
+            }
+
+        }
+    };
+
 
     public MyBluetoothClient(Boolean active) throws CertificateException, InvalidAlgorithmParameterException,
             NoSuchAlgorithmException, KeyStoreException, NoSuchProviderException,
             UnrecoverableEntryException, IOException {
-
         rm = new RequestManager();
         this.active = active;
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -84,33 +108,48 @@ public class MyBluetoothClient extends Thread {
             mBluetoothAdapter.enable();
         }
 
-        pc = getDevice();
+        // Register the BroadcastReceiver
+        IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+        MyApp.getAppContext().registerReceiver(mReceiver, filter); // Don't forget to unregister during onDestroy
+
+//        IntentFilter filter1 = new IntentFilter("android.bluetooth.BluetoothDevice.ACTION_ACL_CONNECTED");
+//        MyApp.getAppContext().registerReceiver(mReceiver, filter1);
+
+        mBluetoothAdapter.startDiscovery();
+       // while (mArrayAdapter.size()==0){}
+
+       // pc = getDevice();
     }
 
     // FIXME select the right (?) bluetooth device. First? Selected by user?
     private BluetoothDevice getDevice() {
 
-        Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
-        Map<String, BluetoothDevice> map = new HashMap<>();
-        Log.d(TAG, "Paired devices: " + pairedDevices.size());
-        String name = "";
-        if (pairedDevices.size() > 0) {
-            for (BluetoothDevice device : pairedDevices) {
-                String deviceName = device.getName();
-                String deviceHardwareAddress = device.getAddress(); // MAC address
-                Log.d(TAG, "Device Name: " + deviceName);
-                Log.d(TAG, "Device MAC: " + deviceHardwareAddress);
-                map.put(deviceName, device);
-                //FIXME? return first
-                return device;
-            }
-        }
+//        Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
+//
+//        Map<String, BluetoothDevice> map = new HashMap<>();
+//        Log.d(TAG, "Paired devices: " + pairedDevices.size());
+//        String name = "";
+//        if (pairedDevices.size() > 0) {
+//            for (BluetoothDevice device : pairedDevices) {
+//                String deviceName = device.getName();
+//                String deviceHardwareAddress = device.getAddress(); // MAC address
+//                Log.d(TAG, "Device Name: " + deviceName);
+//                Log.d(TAG, "Device MAC: " + deviceHardwareAddress);
+//                map.put(deviceName, device);
+//                //FIXME? return first
+//                return device;
+//            }
+//        }
+
+
 
         return null;
     }
 
-    @Override
-    public void run() {
+
+
+//    @Override
+    public void run(BluetoothDevice pc) {
         connection = new Connection(pc);
         connection.connect();
         String url= "http://10.0.2.2";

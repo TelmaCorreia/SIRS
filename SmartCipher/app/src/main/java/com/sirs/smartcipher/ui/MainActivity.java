@@ -18,6 +18,7 @@ import com.sirs.smartcipher.Constants;
 import com.sirs.smartcipher.MyApp;
 import com.sirs.smartcipher.QRActivity;
 import com.sirs.smartcipher.R;
+import com.sirs.smartcipher.bluetooth.MyBluetoothClient;
 import com.sirs.smartcipher.network.MyHttpClient;
 
 import org.w3c.dom.Text;
@@ -83,11 +84,35 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+//        btn_key.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Intent intent = new Intent(MainActivity.this, QRActivity.class);
+//                startActivity(intent);
+//            }
+//        });
+
         btn_key.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, QRActivity.class);
-                startActivity(intent);
+                try {
+                    MyBluetoothClient b = new MyBluetoothClient(true);
+                    //b.run();
+                } catch (CertificateException e) {
+                    e.printStackTrace();
+                } catch (InvalidAlgorithmParameterException e) {
+                    e.printStackTrace();
+                } catch (NoSuchAlgorithmException e) {
+                    e.printStackTrace();
+                } catch (KeyStoreException e) {
+                    e.printStackTrace();
+                } catch (NoSuchProviderException e) {
+                    e.printStackTrace();
+                } catch (UnrecoverableEntryException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         });
     }

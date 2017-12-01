@@ -77,28 +77,16 @@ public class SecurityHelper {
             SharedPreferences.Editor editor = sharedPref.edit();
             editor.putString("FILEKEY", Base64.encodeToString(fk, Base64.DEFAULT));
             editor.apply();
-//            Log.d(TAG, "FIRST TIME, FileKey saved in Shared preferences size: " + sharedPref.getString("FILEKEY", "").getBytes().length);
-//            Log.d(TAG, "FIRST TIME, FileKey generated size:: " + fk.length);
-//            Log.d(TAG, "FIRST TIME, string " + new String(fk));
-//            Log.d(TAG, "FIRST TIME, string sp " + sharedPref.getString("FILEKEY", ""));
-//            Log.d(TAG, "FIRST TIME, bytes " + fk);
-//            Log.d(TAG, "FIRST TIME, bytes sp " + sharedPref.getString("FILEKEY", "").getBytes());
             oldFileKey = fk;
             return fk;
         }else{
             oldFileKey = Base64.decode(sharedPref.getString("FILEKEY", ""), Base64.DEFAULT);
-            Log.d(TAG, "NOT FIRST TIME, oldfilekey size: " + oldFileKey.length);
 
             //save actual key in shared preferences
             byte[] newFK = generateRandom();
             SharedPreferences.Editor editor = sharedPref.edit();
             editor.putString("FILEKEY", Base64.encodeToString(newFK, Base64.DEFAULT));
             editor.apply();
-          //  byte[] array = Base64.decode(sharedPref.getString("FILEKEY", ""), Base64.DEFAULT);
-
-//            Log.d(TAG, "NOT FIRST TIME, newFileKey size: " +  newFK.length);
-//            Log.d(TAG, "NOT FIRST TIME, FileKey saved in Shared preferences size: " + array.length);
-
             return newFK;
         }
 
