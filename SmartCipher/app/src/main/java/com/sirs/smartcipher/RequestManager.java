@@ -77,7 +77,7 @@ public class RequestManager {
 
         outputStream.write(requestType.getBytes());
         outputStream.write(getSecurityHelper().getFileKey());
-        //outputStream.write(getSecurityHelper().getOldFileKey());
+        outputStream.write(getSecurityHelper().getOldFileKey());
 
 
 
