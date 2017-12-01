@@ -57,7 +57,7 @@ public class SecurityHelper {
             KeyStoreException, IOException, InvalidAlgorithmParameterException,
             UnrecoverableEntryException, NoSuchProviderException {
 
-        this.fileKey = getFileKey();//fixme
+        this.fileKey = genFileKey();
         this.sessionKey = generateRandom();
         this.initializationVectorSK = generateRandom();
         this.counter = 0;
@@ -65,27 +65,37 @@ public class SecurityHelper {
     }
 
 
-    public byte[] getFileKey() throws KeyStoreException, CertificateException,
+    public byte[] genFileKey() throws KeyStoreException, CertificateException,
             NoSuchAlgorithmException, InvalidAlgorithmParameterException, NoSuchProviderException,
             IOException, UnrecoverableEntryException {
 
         Context context = MyApp.getAppContext();
         SharedPreferences sharedPref = context.getSharedPreferences("PK_FILE", Context.MODE_PRIVATE);
         String filekey = sharedPref.getString("FILEKEY", "");
+        Log.d(TAG, "filekey from sp: " + filekey);
         if (!sharedPref.contains("FILEKEY")){
             byte[] fk= generateRandom();
             SharedPreferences.Editor editor = sharedPref.edit();
-            editor.putString("FILEKEY", String.valueOf(fk));
+            editor.putString("FILEKEY", new String(fk));
             editor.commit();
+            Log.d(TAG, "inside not contains filekey from sp: " + sharedPref.getString("FILEKEY", ""));
+            Log.d(TAG, "inside not contains oldfilekey size: " + fk.length);
+            Log.d(TAG, "inside not contains oldfilekey size: " + fk.length);
             oldFileKey = fk;
             return fk;
         }else{
             oldFileKey = filekey.getBytes();
+            Log.d(TAG, "inside contains,  oldfilekey size: " + oldFileKey.length);
+
             //save actual key in shared preferences
             byte[] newFK = generateRandom();
             SharedPreferences.Editor editor = sharedPref.edit();
-            editor.putString("FILEKEY", String.valueOf(newFK));
+            editor.putString("FILEKEY", new String(newFK));
             editor.commit();
+            Log.d(TAG, "inside contains,  newFileKey size: " +  sharedPref.getString("FILEKEY", "").getBytes());
+
+
+
             return newFK;
         }
 
@@ -94,6 +104,10 @@ public class SecurityHelper {
     public byte[] getOldFileKey(){
         return oldFileKey;
     }
+    public byte[] getFileKey(){
+        return oldFileKey;
+    }
+
 
     public byte[] getSessionKey() {
         return sessionKey;
@@ -235,9 +249,6 @@ public class SecurityHelper {
             IllegalBlockSizeException {
 
         IvParameterSpec initializationVector = new IvParameterSpec(getIVSK());
-        Log.d("teste", String.valueOf(getSessionKey()));
-        Log.d("teste", String.valueOf(getIVSK()));
-
 
         SecretKeySpec secretKeySpec = new SecretKeySpec(getSessionKey(), "AES");
         Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
