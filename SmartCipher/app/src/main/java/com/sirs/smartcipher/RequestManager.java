@@ -123,7 +123,7 @@ public class RequestManager {
         byte[] decryptedResponse = getSecurityHelper().decrypt(Base64.decode(response.getBytes(), NO_WRAP));
         //decompose message
         if (requestType.equals(START_CONNECTION)){
-            HashMap<String, byte[]> map = getSecurityHelper().decomposeMsgAsymmetricEncryption(decryptedResponse);
+            HashMap<String, byte[]> map = getSecurityHelper().decomposeMsgSymmetricEncryption(decryptedResponse);
             return validateResponse(map);
             //return validateResponseStart(map);
         }else{

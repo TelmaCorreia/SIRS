@@ -180,10 +180,11 @@ public class SecurityHelper {
 
     public HashMap<String, byte[]> decomposeMsgAsymmetricEncryption(byte[] content) {
         HashMap<String, byte[]> map = new HashMap();
-        map.put("hash", Arrays.copyOfRange(content, 0, 256));
-        map.put("nonce", Arrays.copyOfRange(content, 256, 256 + 4));
-        map.put("counter", Arrays.copyOfRange(content, 260, 260 + 4));
-        map.put("data", Arrays.copyOfRange(content, 256, content.length));
+        int hash_lenght = 32;
+        map.put("hash", Arrays.copyOfRange(content, 0, hash_lenght));
+        map.put("nonce", Arrays.copyOfRange(content, hash_lenght, hash_lenght + 4));
+        map.put("counter", Arrays.copyOfRange(content, hash_lenght +4, hash_lenght +4 + 4));
+        map.put("data", Arrays.copyOfRange(content, hash_lenght+4, content.length));
 
 
         return map;
