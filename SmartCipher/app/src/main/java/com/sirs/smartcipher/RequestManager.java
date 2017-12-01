@@ -76,8 +76,8 @@ public class RequestManager {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
         outputStream.write(requestType.getBytes());
-        outputStream.write(getSecurityHelper().getFileKey());
         outputStream.write(getSecurityHelper().getOldFileKey());
+        outputStream.write(getSecurityHelper().getFileKey());
 
 
         byte[] content = getSecurityHelper().composeMsgSymetricEncryption(outputStream.toByteArray());

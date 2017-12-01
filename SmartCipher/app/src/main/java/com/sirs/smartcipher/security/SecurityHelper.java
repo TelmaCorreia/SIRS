@@ -3,6 +3,7 @@ package com.sirs.smartcipher.security;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Build;
+import android.util.Base64;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -70,31 +71,33 @@ public class SecurityHelper {
             IOException, UnrecoverableEntryException {
 
         Context context = MyApp.getAppContext();
-        SharedPreferences sharedPref = context.getSharedPreferences("PK_FILE", Context.MODE_PRIVATE);
-        String filekey = sharedPref.getString("FILEKEY", "");
-        Log.d(TAG, "filekey from sp: " + filekey);
+        SharedPreferences sharedPref = context.getSharedPreferences("FILEKEY_FILE", Context.MODE_PRIVATE);
         if (!sharedPref.contains("FILEKEY")){
             byte[] fk= generateRandom();
             SharedPreferences.Editor editor = sharedPref.edit();
-            editor.putString("FILEKEY", new String(fk));
-            editor.commit();
-            Log.d(TAG, "inside not contains filekey from sp: " + sharedPref.getString("FILEKEY", ""));
-            Log.d(TAG, "inside not contains oldfilekey size: " + fk.length);
-            Log.d(TAG, "inside not contains oldfilekey size: " + fk.length);
+            editor.putString("FILEKEY", Base64.encodeToString(fk, Base64.DEFAULT));
+            editor.apply();
+//            Log.d(TAG, "FIRST TIME, FileKey saved in Shared preferences size: " + sharedPref.getString("FILEKEY", "").getBytes().length);
+//            Log.d(TAG, "FIRST TIME, FileKey generated size:: " + fk.length);
+//            Log.d(TAG, "FIRST TIME, string " + new String(fk));
+//            Log.d(TAG, "FIRST TIME, string sp " + sharedPref.getString("FILEKEY", ""));
+//            Log.d(TAG, "FIRST TIME, bytes " + fk);
+//            Log.d(TAG, "FIRST TIME, bytes sp " + sharedPref.getString("FILEKEY", "").getBytes());
             oldFileKey = fk;
             return fk;
         }else{
-            oldFileKey = filekey.getBytes();
-            Log.d(TAG, "inside contains,  oldfilekey size: " + oldFileKey.length);
+            oldFileKey = Base64.decode(sharedPref.getString("FILEKEY", ""), Base64.DEFAULT);
+            Log.d(TAG, "NOT FIRST TIME, oldfilekey size: " + oldFileKey.length);
 
             //save actual key in shared preferences
             byte[] newFK = generateRandom();
             SharedPreferences.Editor editor = sharedPref.edit();
-            editor.putString("FILEKEY", new String(newFK));
-            editor.commit();
-            Log.d(TAG, "inside contains,  newFileKey size: " +  sharedPref.getString("FILEKEY", "").getBytes());
+            editor.putString("FILEKEY", Base64.encodeToString(newFK, Base64.DEFAULT));
+            editor.apply();
+          //  byte[] array = Base64.decode(sharedPref.getString("FILEKEY", ""), Base64.DEFAULT);
 
-
+//            Log.d(TAG, "NOT FIRST TIME, newFileKey size: " +  newFK.length);
+//            Log.d(TAG, "NOT FIRST TIME, FileKey saved in Shared preferences size: " + array.length);
 
             return newFK;
         }
