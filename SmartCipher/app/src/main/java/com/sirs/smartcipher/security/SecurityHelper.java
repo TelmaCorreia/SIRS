@@ -40,10 +40,6 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-/**
- * Created by telma on 11/19/2017.
- */
-
 public class SecurityHelper {
 
     private static final String TAG = "SecurityHelper";
@@ -52,7 +48,6 @@ public class SecurityHelper {
     private byte[] oldFileKey;
     private byte[] initializationVectorSK;
     private int counter;
-    private KeyStore mStore;
 
     public SecurityHelper() throws CertificateException, NoSuchAlgorithmException,
             KeyStoreException, IOException, InvalidAlgorithmParameterException,
@@ -64,41 +59,13 @@ public class SecurityHelper {
         this.counter = 0;
 
     }
-
-
-    public byte[] genFileKey() throws KeyStoreException, CertificateException,
-            NoSuchAlgorithmException, InvalidAlgorithmParameterException, NoSuchProviderException,
-            IOException, UnrecoverableEntryException {
-
-        Context context = MyApp.getAppContext();
-        SharedPreferences sharedPref = context.getSharedPreferences("FILEKEY_FILE", Context.MODE_PRIVATE);
-        if (!sharedPref.contains("FILEKEY")){
-            byte[] fk= generateRandom();
-            SharedPreferences.Editor editor = sharedPref.edit();
-            editor.putString("FILEKEY", Base64.encodeToString(fk, Base64.DEFAULT));
-            editor.apply();
-            oldFileKey = fk;
-            return fk;
-        }else{
-            oldFileKey = Base64.decode(sharedPref.getString("FILEKEY", ""), Base64.DEFAULT);
-
-            //save actual key in shared preferences
-            byte[] newFK = generateRandom();
-            SharedPreferences.Editor editor = sharedPref.edit();
-            editor.putString("FILEKEY", Base64.encodeToString(newFK, Base64.DEFAULT));
-            editor.apply();
-            return newFK;
-        }
-
-    }
-
-    public byte[] getOldFileKey(){
-        return oldFileKey;
-    }
-    public byte[] getFileKey(){
+    public byte[] getOldFileKey() {
         return oldFileKey;
     }
 
+    public byte[] getFileKey() {
+        return oldFileKey;
+    }
 
     public byte[] getSessionKey() {
         return sessionKey;
@@ -107,7 +74,6 @@ public class SecurityHelper {
     public byte[] getOldSessionKey() {
         return sessionKey;
     }
-
 
     public byte[] getIVSK() {
         return initializationVectorSK;
@@ -121,8 +87,10 @@ public class SecurityHelper {
         this.counter = count + 1;
     }
 
+
     private PublicKey getPublicKey() throws NoSuchAlgorithmException, KeyStoreException,
             IOException, InvalidKeySpecException {
+
         byte[] keyBytes = readFromfile(Constants.FILENAME, MyApp.getAppContext());
         X509EncodedKeySpec spec = new X509EncodedKeySpec(keyBytes);
         KeyFactory kf = KeyFactory.getInstance("RSA");
@@ -131,29 +99,6 @@ public class SecurityHelper {
         return pk;
 
     }
-
-    /** Use only if you are on a real device **/
-//    private PublicKey getPublicKey() throws NoSuchAlgorithmException, KeyStoreException,
-//            IOException, InvalidKeySpecException {
-//
-//        //SAVE PK IF DOES NOT EXIST
-//        Context context = MyApp.getAppContext();
-//        SharedPreferences sharedPref = context.getSharedPreferences("PK_FILE", Context.MODE_PRIVATE);
-//        String pubkey = sharedPref.getString("PK", "");
-//        if (!sharedPref.contains("PK") ){
-//            Log.d("PK", "No publick key associated");
-//            return null;
-//        }else {
-//            byte[] keyBytes = pubkey.getBytes();
-//            X509EncodedKeySpec spec = new X509EncodedKeySpec(keyBytes);
-//            KeyFactory kf = KeyFactory.getInstance("RSA");
-//            PublicKey pk = kf.generatePublic(spec);
-//            return pk;
-//        }
-//
-//    }
-
-
     public byte[] readFromfile(String fileName, Context context) {
         try {
             InputStream is = context.getResources().getAssets().open(fileName);
@@ -169,6 +114,29 @@ public class SecurityHelper {
         return null;
 
     }
+
+    /**
+     * Use only if you are on a real device doesn't work for emulator
+     **/
+   /* private PublicKey getPublicKey() throws NoSuchAlgorithmException, KeyStoreException,
+            IOException, InvalidKeySpecException {
+
+        //SAVE PK IF DOES NOT EXIST
+        Context context = MyApp.getAppContext();
+        SharedPreferences sharedPref = context.getSharedPreferences(Constants.SHARED_PREF_PK, Context.MODE_PRIVATE);
+        String pubkey = sharedPref.getString("PK", "");
+        if (!sharedPref.contains(Constants.SHARED_PREF_KEY_PK) ){
+            Log.d("PK", "No publick key associated");
+            return null;
+        }else {
+            byte[] keyBytes = pubkey.getBytes();
+            X509EncodedKeySpec spec = new X509EncodedKeySpec(keyBytes);
+            KeyFactory kf = KeyFactory.getInstance("RSA");
+            PublicKey pk = kf.generatePublic(spec);
+            return pk;
+        }
+    }*/
+
 
     /**********************************************************************************************
      * Asymmetric Functions
@@ -203,7 +171,6 @@ public class SecurityHelper {
             System.out.println(e.getMessage());
         }
         byte data[] = outputStream.toByteArray();
-        System.out.println("counter sent: " + counter);
 
         byte[] hash = messageDigest(data);
         outputStream = new ByteArrayOutputStream();
@@ -223,8 +190,8 @@ public class SecurityHelper {
         int hash_lenght = 32;
         map.put("hash", Arrays.copyOfRange(content, 0, hash_lenght));
         map.put("nonce", Arrays.copyOfRange(content, hash_lenght, hash_lenght + 4));
-        map.put("counter", Arrays.copyOfRange(content, hash_lenght +4, hash_lenght +4 + 4));
-        map.put("data", Arrays.copyOfRange(content, hash_lenght+4, content.length));
+        map.put("counter", Arrays.copyOfRange(content, hash_lenght + 4, hash_lenght + 4 + 4));
+        map.put("data", Arrays.copyOfRange(content, hash_lenght + 4, content.length));
 
 
         return map;
@@ -308,6 +275,36 @@ public class SecurityHelper {
      * Auxiliary functions
      **********************************************************************************************/
 
+    //used to generate the key used for files encryption
+    public byte[] genFileKey() throws KeyStoreException, CertificateException,
+            NoSuchAlgorithmException, InvalidAlgorithmParameterException, NoSuchProviderException,
+            IOException, UnrecoverableEntryException {
+
+        Context context = MyApp.getAppContext();
+        SharedPreferences sharedPref = context.getSharedPreferences(Constants.SHARED_PREF_FK, Context.MODE_PRIVATE);
+        //If no key saved before, old key is equals to the key generated
+        if (!sharedPref.contains(Constants.SHARED_PREF_KEY_KF)) {
+            byte[] fk = generateRandom();
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putString(Constants.SHARED_PREF_KEY_KF, Base64.encodeToString(fk, Base64.DEFAULT));
+            editor.apply();
+            oldFileKey = fk;
+            return fk;
+        }
+        //else old key is equals to the saved key and new key is generated and saved
+        else {
+            oldFileKey = Base64.decode(sharedPref.getString(Constants.SHARED_PREF_KEY_KF, ""), Base64.DEFAULT);
+
+            //save actual key in shared preferences
+            byte[] newFK = generateRandom();
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putString(Constants.SHARED_PREF_KEY_KF, Base64.encodeToString(newFK, Base64.DEFAULT));
+            editor.apply();
+            return newFK;
+        }
+
+    }
+
     //used for sessionkey and sessionIV
     private byte[] generateRandom() {
         SecureRandom random = new SecureRandom();
@@ -319,7 +316,6 @@ public class SecurityHelper {
     //get timestamp and transform to byte[]
     public byte[] generateNonce() {
         int timestamp = (int) (System.currentTimeMillis() / 1000);
-        System.out.println("nonce: " + timestamp);
         ByteBuffer nonce = ByteBuffer.allocate(Integer.BYTES);
         nonce.putInt(timestamp);
         return nonce.array();

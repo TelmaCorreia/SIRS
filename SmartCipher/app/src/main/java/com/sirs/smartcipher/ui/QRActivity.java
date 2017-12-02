@@ -1,4 +1,4 @@
-package com.sirs.smartcipher;
+package com.sirs.smartcipher.ui;
 
 import android.Manifest;
 import android.content.Context;
@@ -25,7 +25,10 @@ import android.widget.Toast;
 import com.google.android.gms.vision.Frame;
 import com.google.android.gms.vision.barcode.Barcode;
 import com.google.android.gms.vision.barcode.BarcodeDetector;
-import com.google.android.gms.vision.text.Text;
+import com.sirs.smartcipher.BuildConfig;
+import com.sirs.smartcipher.Constants;
+import com.sirs.smartcipher.MyApp;
+import com.sirs.smartcipher.R;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -93,14 +96,15 @@ public class QRActivity extends AppCompatActivity {
                     for (int index = 0; index < barcodes.size(); index++) {
                         Barcode code = barcodes.valueAt(index);
                         scanResults.setText(code.displayValue);
+
                         //SAVE PK IF DOES NOT EXIST
                         Context context = MyApp.getAppContext();
-                        SharedPreferences sharedPref = context.getSharedPreferences("PK_FILE", Context.MODE_PRIVATE);
-                        String pk = sharedPref.getString("PK", "");
-                        if (!(sharedPref.contains("PK") && pk.equals(code.displayValue))){
+                        SharedPreferences sharedPref = context.getSharedPreferences(Constants.SHARED_PREF_PK, Context.MODE_PRIVATE);
+                        String pk = sharedPref.getString(Constants.SHARED_PREF_KEY_PK, "");
+                        if (!(sharedPref.contains(Constants.SHARED_PREF_KEY_PK) && pk.equals(code.displayValue))){
                             Log.d("PK", "Different public key");
                             SharedPreferences.Editor editor = sharedPref.edit();
-                            editor.putString("PK", code.displayValue);
+                            editor.putString(Constants.SHARED_PREF_KEY_PK, code.displayValue);
                             editor.commit();
                         }
 
@@ -114,8 +118,7 @@ public class QRActivity extends AppCompatActivity {
                     scanResults.setText("Could not set up the detector!");
                 }
             } catch (Exception e) {
-                Toast.makeText(this, "Failed to load Image", Toast.LENGTH_SHORT)
-                        .show();
+                Toast.makeText(this, "Failed to load Image", Toast.LENGTH_SHORT).show();
                 Log.e(LOG_TAG, e.toString());
             }
         }

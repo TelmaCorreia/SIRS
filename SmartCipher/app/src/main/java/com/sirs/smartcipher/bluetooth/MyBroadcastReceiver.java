@@ -8,10 +8,6 @@ import android.util.Log;
 
 import java.util.Collection;
 
-/**
- * Created by telma on 12/1/2017.
- */
-
 public class MyBroadcastReceiver extends BroadcastReceiver {
 
     private static final String TAG = "Broadcast Receiver";

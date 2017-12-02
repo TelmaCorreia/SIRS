@@ -1,18 +1,13 @@
 package com.sirs.smartcipher.network;
 
-import android.content.Context;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.sirs.smartcipher.Constants;
-import com.sirs.smartcipher.MyApp;
-import com.sirs.smartcipher.RequestManager;
+import com.sirs.smartcipher.Core;
 
 import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.conn.ConnectTimeoutException;
@@ -37,25 +32,19 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
-/**
- * Created by telma on 11/21/2017.
- */
-
 public class MyHttpClient extends Thread { //extends AsyncTask<String, String, String[]> {
 
     private static final String TAG = "running";
 
     String url = "http://10.0.2.2";
-    public static final int TIME_INTERVAL = 3000;
 
-    private RequestManager rm;
-
+    private Core core;
     private Boolean active;
 
     public MyHttpClient(Boolean active) throws CertificateException, InvalidAlgorithmParameterException,
             NoSuchAlgorithmException, KeyStoreException, NoSuchProviderException,
             UnrecoverableEntryException, IOException {
-        rm = new RequestManager();
+        core = new Core();
         this.active = active;
     }
 
@@ -70,7 +59,7 @@ public class MyHttpClient extends Thread { //extends AsyncTask<String, String, S
             while(active){
                 response = post_request(url, Constants.PING);
                 processResponse(response);
-                Thread.sleep(TIME_INTERVAL);
+                Thread.sleep(Constants.TIME_INTERVAL);
             }
             //http.post(url, STOP);
         }
@@ -87,7 +76,7 @@ public class MyHttpClient extends Thread { //extends AsyncTask<String, String, S
 
         String requestType = strings[1];
         try {
-            msg = rm.generateMessage(requestType);
+            msg = core.generateMessage(requestType);
             post.setHeader("content-lenght",String.valueOf(msg.length()));
             post.setEntity(new StringEntity(msg));
 
@@ -149,7 +138,7 @@ public class MyHttpClient extends Thread { //extends AsyncTask<String, String, S
 
     protected void processResponse(String[] result) {
         try {
-            if(!rm.processResponse(result[0], result[1])){
+            if(!core.processResponse(result[0], result[1])){
                 Log.d(TAG, "*** WARNING: Ivalid Response! ***");
                 System.exit(0) ;
             }
@@ -174,12 +163,12 @@ public class MyHttpClient extends Thread { //extends AsyncTask<String, String, S
         } catch (IOException e) {
             e.printStackTrace();
         }
-        ;    }
+    }
 
 
 
-    public RequestManager getRequestManager(){
-        return rm;
+    public Core getRequestManager(){
+        return core;
     }
 
     private HttpClient client = HttpClientBuilder.create().build();
@@ -193,7 +182,7 @@ public class MyHttpClient extends Thread { //extends AsyncTask<String, String, S
             String msg = "";
             HttpPost post = new HttpPost(url);
 
-            msg = rm.generateMessage(requestType);
+            msg = core.generateMessage(requestType);
             post.setHeader("content-lenght",String.valueOf(msg.length()));
             post.setEntity(new StringEntity(msg));
 
@@ -221,7 +210,7 @@ public class MyHttpClient extends Thread { //extends AsyncTask<String, String, S
             Log.d(TAG, "Request Type: "+requestType);
             Log.d(TAG, "Result: "+(result.toString()));
 
-            if(!rm.processResponse(requestType, new String(result))){
+            if(!core.processResponse(requestType, new String(result))){
                 Log.d(TAG, "*** WARNING: Ivalid Response! ***");
                 System.exit(0) ;
             };

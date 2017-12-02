@@ -7,28 +7,16 @@ import android.content.IntentFilter;
 import android.util.Log;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothSocket;
 import android.widget.Toast;
 
 import com.sirs.smartcipher.Constants;
 import com.sirs.smartcipher.MyApp;
-import com.sirs.smartcipher.RequestManager;
+import com.sirs.smartcipher.Core;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.conn.ConnectTimeoutException;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.HttpClientBuilder;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -45,13 +33,6 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
-import static android.support.v4.app.ActivityCompat.startActivityForResult;
-
-/**
- * Created by telma on 11/21/2017.
- */
-
-
 public class MyBluetoothClient {
 
     private static final String TAG = "running";
@@ -59,7 +40,7 @@ public class MyBluetoothClient {
     java.util.UUID MY_UUID = UUID.fromString("1e0ca4ea-299d-4335-93eb-27fcfe7fa848");
     public static final int TIME_INTERVAL = 3000;
 
-    private RequestManager rm;
+    private Core rm;
 
     BluetoothAdapter mBluetoothAdapter;
     BluetoothDevice pc;
@@ -94,7 +75,7 @@ public class MyBluetoothClient {
     public MyBluetoothClient(Boolean active) throws CertificateException, InvalidAlgorithmParameterException,
             NoSuchAlgorithmException, KeyStoreException, NoSuchProviderException,
             UnrecoverableEntryException, IOException {
-        rm = new RequestManager();
+        rm = new Core();
         this.active = active;
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (mBluetoothAdapter == null) {

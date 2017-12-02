@@ -37,7 +37,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".QRActivity"></activity>
+        <activity android:name=".ui.QRActivity"></activity>
 
         <provider
             android:name="android.support.v4.content.FileProvider"
