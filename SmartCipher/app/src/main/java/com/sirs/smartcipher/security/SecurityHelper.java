@@ -71,10 +71,6 @@ public class SecurityHelper {
         return sessionKey;
     }
 
-    public byte[] getOldSessionKey() {
-        return sessionKey;
-    }
-
     public byte[] getIVSK() {
         return initializationVectorSK;
     }
@@ -119,7 +115,7 @@ public class SecurityHelper {
      * Use only if you are on a real device doesn't work for emulator
      **/
     private PublicKey getPublicKey() throws NoSuchAlgorithmException, KeyStoreException,
-            IOException, InvalidKeySpecException {
+            IOException, InvalidKeySpecException, MyException {
 
         //SAVE PK IF DOES NOT EXIST
         Context context = MyApp.getAppContext();
@@ -127,7 +123,7 @@ public class SecurityHelper {
         String pubkey = sharedPref.getString("PK", "");
         if (!sharedPref.contains(Constants.SHARED_PREF_KEY_PK) ){
             Log.d("PK", "No publick key associated");
-            return null;
+            throw new MyException("Please configure your Public Key!");
         }else {
             byte[] keyBytes = Base64.decode(pubkey, Base64.DEFAULT);
             X509EncodedKeySpec spec = new X509EncodedKeySpec(keyBytes);
@@ -145,7 +141,7 @@ public class SecurityHelper {
     //Asymmetric encryption
     public byte[] encryptAsymmetric(byte[] inputData) throws InvalidKeySpecException,
             NoSuchAlgorithmException, KeyStoreException, IOException, NoSuchPaddingException,
-            InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
+            InvalidKeyException, BadPaddingException, IllegalBlockSizeException, MyException {
 
         PublicKey key = getPublicKey();
         Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-1AndMGF1Padding");
@@ -163,23 +159,19 @@ public class SecurityHelper {
         byte[] nonce = generateNonce();
         byte[] counter = ByteBuffer.allocate(4).putInt(getCounter()).array();
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        try {
-            outputStream.write(nonce);
-            outputStream.write(counter);
-            outputStream.write(content);
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-        }
+
+        outputStream.write(nonce);
+        outputStream.write(counter);
+        outputStream.write(content);
+
         byte data[] = outputStream.toByteArray();
 
         byte[] hash = messageDigest(data);
         outputStream = new ByteArrayOutputStream();
-        try {
-            outputStream.write(hash);
-            outputStream.write(data);
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-        }
+
+        outputStream.write(hash);
+        outputStream.write(data);
+
 
         return encryptAsymmetric(outputStream.toByteArray());
     }
@@ -239,13 +231,11 @@ public class SecurityHelper {
         byte[] nonce = generateNonce();
         byte[] counter = ByteBuffer.allocate(4).putInt(getCounter()).array();
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        try {
-            outputStream.write(nonce);
-            outputStream.write(counter);
-            outputStream.write(content);
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-        }
+
+        outputStream.write(nonce);
+        outputStream.write(counter);
+        outputStream.write(content);
+
         byte data[] = outputStream.toByteArray();
 
         byte[] hash = messageDigest(data);

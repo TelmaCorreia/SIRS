@@ -98,7 +98,7 @@ public class ConfigActivity extends AppCompatActivity {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     takePicture();
                 } else {
-                    Toast.makeText(ConfigActivity.this, "Permission Denied!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ConfigActivity.this, "Permission Denied!", Toast.LENGTH_LONG).show();
                 }
         }
     }
@@ -184,7 +184,7 @@ public class ConfigActivity extends AppCompatActivity {
                 .openInputStream(uri), null, bmOptions);
     }
 
-    private void showDialog(Map<String, BluetoothDevice> map) {
+    private void showDialog(final Map<String, BluetoothDevice> map) {
         AlertDialog.Builder builderSingle = new AlertDialog.Builder(ConfigActivity.this);
         builderSingle.setTitle("Select One Device:");
 
@@ -204,6 +204,8 @@ public class ConfigActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 String strName = arrayAdapter.getItem(which);
+                String mac = map.get(strName).getAddress();
+                saveMACAddress(mac);
                 AlertDialog.Builder builderInner = new AlertDialog.Builder(ConfigActivity.this);
                 builderInner.setMessage(strName);
                 builderInner.setTitle("Your Selected Item is");
@@ -238,5 +240,15 @@ public class ConfigActivity extends AppCompatActivity {
             }
         }
         return map;
+    }
+
+    private void saveMACAddress(String macAddress){
+        Context context = MyApp.getAppContext();
+        SharedPreferences sharedPref = context.getSharedPreferences(Constants.SHARED_PREF_MAC, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString(Constants.SHARED_PREF_KEY_MAC, macAddress);
+        editor.commit();
+
+
     }
 }

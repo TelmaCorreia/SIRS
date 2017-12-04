@@ -81,8 +81,9 @@ public class Core {
         boolean counter = getSecurityHelper().checkValidCounter(map.get("counter"));
         byte [] myhash = getSecurityHelper().messageDigest(map.get("data"));
         boolean hash = getSecurityHelper().checkHash(map.get("hash"), myhash);
-
-        return (nonce && hash && counter);
+        boolean result = (nonce && hash && counter);
+        if (!result) throw new MyException("INVALID RESPONSE!");
+        return result;
 
     }
 

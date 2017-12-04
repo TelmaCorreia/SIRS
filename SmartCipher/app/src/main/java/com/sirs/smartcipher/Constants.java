@@ -14,7 +14,8 @@ public final class Constants {
     public static final String SHARED_PREF_PK = "PK_FILE";
     public static final String SHARED_PREF_KEY_PK = "PK";
 
-
+    public static final String SHARED_PREF_MAC = "MAC_FILE";
+    public static final String SHARED_PREF_KEY_MAC = "MAC";
 
     //random lenght (bytes)
     public static final int LENGHT = 16;
@@ -22,8 +23,5 @@ public final class Constants {
     public static final String FILENAME = "public_key.der";
 
 
-
-
-
-
+    public static final int MESSAGE_SIZE = 48;
 }

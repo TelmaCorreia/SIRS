@@ -38,7 +38,7 @@ public class Connection {
     java.util.UUID MY_UUID = UUID.fromString("1e0ca4ea-299d-4335-93eb-27fcfe7fa848");
 
 
-    public Connection(BluetoothDevice device) {
+    public Connection(BluetoothDevice device) throws IOException {
         BluetoothSocket tmp = null;
         mmDevice = device;
 
@@ -50,13 +50,14 @@ public class Connection {
                 Handler handler = new Handler();
                 handler.post(new Runnable() {
                     public void run() {
-                        Toast.makeText(MyApp.getAppContext(),"No device connected, please try again", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MyApp.getAppContext(),"No device connected, please try again", Toast.LENGTH_LONG).show();
                     }
                 });
             }
 
         } catch (IOException e) {
             Log.e(TAG, "Socket's create() method failed", e);
+            throw e;
         }
         mmSocket = tmp;
 
@@ -69,18 +70,20 @@ public class Connection {
             tmpIn = mmSocket.getInputStream();
         } catch (IOException e) {
             Log.e(TAG, "Error occurred when creating input stream", e);
+            throw e;
         }
         try {
             tmpOut = mmSocket.getOutputStream();
         } catch (IOException e) {
             Log.e(TAG, "Error occurred when creating output stream", e);
+            throw e;
         }
 
         mmInStream = tmpIn;
         mmOutStream = tmpOut;
     }
 
-    public void connect() {
+    public void connect() throws IOException {
        // mBluetoothAdapter.cancelDiscovery();
         try {
 
@@ -88,36 +91,42 @@ public class Connection {
         } catch (IOException connectException) {
             try {
                 mmSocket.close();
-            } catch (IOException closeException) {
-                Log.e(TAG, "Could not close the client socket", closeException);
+            } catch (IOException e) {
+                Log.e(TAG, "Could not close the client socket", e);
+                throw e;
             }
-            return;
+            throw connectException;
+
         }
     }
 
-    public void cancel() {
+    public void cancel() throws IOException {
         try {
             mmSocket.close();
         } catch (IOException e) {
             Log.e(TAG, "Could not close the client socket", e);
+            throw e;
+
         }
     }
 
-    public void send(String message) {
+    public void send(String message) throws IOException {
         byte[] msg =  Base64.decode(message, Base64.DEFAULT);
         send(msg);
     }
 
-    public void send(byte[] bytes) {
+    public void send(byte[] bytes) throws IOException {
         try {
             mmOutStream.write(bytes);
         } catch (IOException e) {
             Log.e(TAG, "Error occurred when sending data", e);
+            throw e;
+
         }
     }
 
     // https://developer.android.com/guide/topics/connectivity/bluetooth.html#ManagingAConnection
-    public String receive(int nToRead) {
+    public String receive(int nToRead) throws IOException {
         byte[] mmBuffer = new byte[nToRead];
         ByteBuffer buffer = ByteBuffer.allocate(nToRead);
         int numBytes; // bytes returned from read()
@@ -135,7 +144,7 @@ public class Connection {
 
             } catch (IOException e) {
                 Log.d(TAG, "Input stream was disconnected", e);
-                break;
+                throw e;
             }
         }
         return Base64.encodeToString(buffer.array(), Base64.DEFAULT);
