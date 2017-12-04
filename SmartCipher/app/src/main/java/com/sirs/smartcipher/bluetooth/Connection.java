@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Base64;
@@ -43,7 +44,16 @@ public class Connection {
 
 
         try {
-            tmp = device.createRfcommSocketToServiceRecord(MY_UUID);
+            if (device!=null){
+                tmp = device.createRfcommSocketToServiceRecord(MY_UUID);
+            }else{
+                Handler handler = new Handler();
+                handler.post(new Runnable() {
+                    public void run() {
+                        Toast.makeText(MyApp.getAppContext(),"No device connected, please try again", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
 
         } catch (IOException e) {
             Log.e(TAG, "Socket's create() method failed", e);

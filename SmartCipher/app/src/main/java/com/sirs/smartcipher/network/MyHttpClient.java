@@ -6,6 +6,8 @@ import android.util.Log;
 
 import com.sirs.smartcipher.Constants;
 import com.sirs.smartcipher.Core;
+import com.sirs.smartcipher.bluetooth.*;
+import com.sirs.smartcipher.bluetooth.MyException;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.NoHttpResponseException;
@@ -136,6 +138,8 @@ public class MyHttpClient extends Thread { //extends AsyncTask<String, String, S
             e1.printStackTrace();
         } catch (BadPaddingException e1) {
             e1.printStackTrace();
+        } catch (com.sirs.smartcipher.bluetooth.MyException e) {
+            e.printStackTrace();
         }
         return new String[1];
     }
@@ -165,6 +169,8 @@ public class MyHttpClient extends Thread { //extends AsyncTask<String, String, S
         } catch (KeyStoreException e) {
             e.printStackTrace();
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (MyException e) {
             e.printStackTrace();
         }
     }

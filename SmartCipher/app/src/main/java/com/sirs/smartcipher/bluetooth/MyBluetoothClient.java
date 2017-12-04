@@ -1,20 +1,27 @@
 package com.sirs.smartcipher.bluetooth;
 
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Handler;
 import android.util.Log;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
 import com.sirs.smartcipher.Constants;
 import com.sirs.smartcipher.MyApp;
 import com.sirs.smartcipher.Core;
+import com.sirs.smartcipher.ui.MainActivity;
 
+import org.apache.http.NoHttpResponseException;
 import org.apache.http.client.methods.HttpPost;
 
+import java.net.ConnectException;
 import java.util.ArrayList;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -110,7 +117,7 @@ public class MyBluetoothClient extends Thread{
 
         Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
 
-        Map<String, BluetoothDevice> map = new HashMap<>();
+        final Map<String, BluetoothDevice> map = new HashMap<>();
         Log.d(TAG, "Paired devices: " + pairedDevices.size());
         String name = "";
         if (pairedDevices.size() > 0) {
@@ -120,17 +127,15 @@ public class MyBluetoothClient extends Thread{
                 Log.d(TAG, "Device Name: " + deviceName);
                 Log.d(TAG, "Device MAC: " + deviceHardwareAddress);
                 map.put(deviceName, device);
-                //FIXME? return first
             }
+            //showDialog(map);
+
             return map.get("SAMSUNG-FILIPE");
 
         }
 
-
-
         return null;
     }
-
 
 
     @Override
@@ -150,10 +155,19 @@ public class MyBluetoothClient extends Thread{
                 Thread.sleep(TIME_INTERVAL);
             }
             //http.post(url, STOP);
+        }catch (MyException e){
+            e.printStackTrace();
         }
         catch (Exception e) {
-            //TODO FIXME I'm very sorry for all Exceptions
-            System.out.println(e.getMessage());
+            e.printStackTrace();
+            final String msg = e.getMessage();
+            Handler handler = new Handler();
+            handler.post(new Runnable() {
+                public void run() {
+                    Toast.makeText(MyApp.getAppContext(),"Error: " +msg, Toast.LENGTH_SHORT).show();
+                   // Toast.makeText(MyApp.getAppContext(),"Failed connection, please make sure your key is up to date" +msg, Toast.LENGTH_SHORT).show();
+                }
+            });
         }
     }
 
@@ -173,7 +187,7 @@ public class MyBluetoothClient extends Thread{
         return 0;
     }*/
 
-    protected String[] post_request(String... strings) {
+    protected String[] post_request(String... strings) throws MyException {
         String msg = "";
         HttpPost post = new HttpPost(strings[0]);
 
@@ -188,94 +202,21 @@ public class MyBluetoothClient extends Thread{
             s[1] = result;
             return s;
 
-/*
-            post.setHeader("content-lenght",String.valueOf(msg.length()));
-            post.setEntity(new StringEntity(msg));
-
-            Log.d(TAG, "\nSending 'POST' request to URL : " + strings[0]);
-            System.out.println("RequestType : " +  requestType);
-            System.out.println("Post parameters : " + msg);
-            System.out.println("content-lenght : " + msg.length());
-
-
-
-
-            int responseCode = response.getStatusLine().getStatusCode();
-
-            Log.d(TAG, "Response Code : " + responseCode);
-
-            BufferedReader rd = new BufferedReader( new InputStreamReader(response.getEntity().getContent()));
-
-            StringBuffer result = new StringBuffer();
-            String line = "";
-            while ((line = rd.readLine()) != null) {
-                result.append(line);
-            }
-
-            //TODO
-            Log.d(TAG, "Request Type: "+requestType);
-            Log.d(TAG, "Result: "+(result.toString()));
-            String[] s = new String[2];
-            s[0] = requestType;
-            s[1] = new String(result);
-            return s;
-            */
-        } catch (InvalidKeySpecException e1) {
-            e1.printStackTrace();
-        } catch (NoSuchProviderException e1) {
-            e1.printStackTrace();
-        } catch (CertificateException e1) {
-            e1.printStackTrace();
-        } catch (NoSuchPaddingException e1) {
-            e1.printStackTrace();
-        } catch (InvalidKeyException e1) {
-            e1.printStackTrace();
-        } catch (NoSuchAlgorithmException e1) {
-            e1.printStackTrace();
-        } catch (UnsupportedEncodingException e1) {
-            e1.printStackTrace();
-        } catch (InvalidAlgorithmParameterException e1) {
-            e1.printStackTrace();
-        } catch (IOException e1) {
-            e1.printStackTrace();
-        } catch (KeyStoreException e1) {
-            e1.printStackTrace();
-        } catch (UnrecoverableEntryException e1) {
-            e1.printStackTrace();
-        } catch (IllegalBlockSizeException e1) {
-            e1.printStackTrace();
-        } catch (BadPaddingException e1) {
-            e1.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new MyException(e.getMessage());
         }
-        return new String[1];
     }
 
-    protected void processResponse(String[] result) {
+    protected void processResponse(String[] result) throws MyException {
         try {
             if(!rm.processResponse(result[0], result[1])){
                 Log.d(TAG, "*** WARNING: Ivalid Response! ***");
                 System.exit(0) ;
             }
-        } catch (NoSuchPaddingException e) {
+        } catch (Exception e) {
             e.printStackTrace();
-        } catch (InvalidKeyException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (IllegalBlockSizeException e) {
-            e.printStackTrace();
-        } catch (BadPaddingException e) {
-            e.printStackTrace();
-        } catch (InvalidAlgorithmParameterException e) {
-            e.printStackTrace();
-        } catch (InvalidKeySpecException e) {
-            e.printStackTrace();
-        } catch (SignatureException e) {
-            e.printStackTrace();
-        } catch (KeyStoreException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+            throw new MyException(e.getMessage());
         }
     }
 

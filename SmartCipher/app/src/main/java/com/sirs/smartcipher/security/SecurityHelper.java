@@ -9,6 +9,7 @@ import android.widget.Toast;
 
 import com.sirs.smartcipher.Constants;
 import com.sirs.smartcipher.MyApp;
+import com.sirs.smartcipher.bluetooth.MyException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -53,7 +54,6 @@ public class SecurityHelper {
             KeyStoreException, IOException, InvalidAlgorithmParameterException,
             UnrecoverableEntryException, NoSuchProviderException {
 
-        this.fileKey = genFileKey();
         this.sessionKey = generateRandom();
         this.initializationVectorSK = generateRandom();
         this.counter = 0;
@@ -64,7 +64,7 @@ public class SecurityHelper {
     }
 
     public byte[] getFileKey() {
-        return oldFileKey;
+        return fileKey;
     }
 
     public byte[] getSessionKey() {
@@ -88,7 +88,7 @@ public class SecurityHelper {
     }
 
 
-    private PublicKey getPublicKey() throws NoSuchAlgorithmException, KeyStoreException,
+    /*private PublicKey getPublicKey() throws NoSuchAlgorithmException, KeyStoreException,
             IOException, InvalidKeySpecException {
 
         byte[] keyBytes = readFromfile(Constants.FILENAME, MyApp.getAppContext());
@@ -114,11 +114,11 @@ public class SecurityHelper {
         return null;
 
     }
-
+*/
     /**
      * Use only if you are on a real device doesn't work for emulator
      **/
-   /* private PublicKey getPublicKey() throws NoSuchAlgorithmException, KeyStoreException,
+    private PublicKey getPublicKey() throws NoSuchAlgorithmException, KeyStoreException,
             IOException, InvalidKeySpecException {
 
         //SAVE PK IF DOES NOT EXIST
@@ -129,13 +129,13 @@ public class SecurityHelper {
             Log.d("PK", "No publick key associated");
             return null;
         }else {
-            byte[] keyBytes = pubkey.getBytes();
+            byte[] keyBytes = Base64.decode(pubkey, Base64.DEFAULT);
             X509EncodedKeySpec spec = new X509EncodedKeySpec(keyBytes);
             KeyFactory kf = KeyFactory.getInstance("RSA");
             PublicKey pk = kf.generatePublic(spec);
             return pk;
         }
-    }*/
+    }
 
 
     /**********************************************************************************************
@@ -158,7 +158,7 @@ public class SecurityHelper {
     //Compose Asymmetric message: (content of the message) -> hash + nonce + msg
     public byte[] composeMsgAsymetricEncryption(byte[] content) throws NoSuchPaddingException,
             NoSuchAlgorithmException, KeyStoreException, IOException, BadPaddingException,
-            IllegalBlockSizeException, InvalidKeyException, InvalidKeySpecException {
+            IllegalBlockSizeException, InvalidKeyException, InvalidKeySpecException, MyException {
 
         byte[] nonce = generateNonce();
         byte[] counter = ByteBuffer.allocate(4).putInt(getCounter()).array();
@@ -192,7 +192,6 @@ public class SecurityHelper {
         map.put("nonce", Arrays.copyOfRange(content, hash_lenght, hash_lenght + 4));
         map.put("counter", Arrays.copyOfRange(content, hash_lenght + 4, hash_lenght + 4 + 4));
         map.put("data", Arrays.copyOfRange(content, hash_lenght + 4, content.length));
-
 
         return map;
     }
@@ -235,7 +234,7 @@ public class SecurityHelper {
     //Compose Symmetric message: (content of the message) -> hash + nonce + msg
     public byte[] composeMsgSymetricEncryption(byte[] content) throws NoSuchPaddingException,
             InvalidKeyException, NoSuchAlgorithmException, IllegalBlockSizeException,
-            BadPaddingException, InvalidAlgorithmParameterException, IOException {
+            BadPaddingException, InvalidAlgorithmParameterException, IOException, MyException {
 
         byte[] nonce = generateNonce();
         byte[] counter = ByteBuffer.allocate(4).putInt(getCounter()).array();
@@ -276,7 +275,7 @@ public class SecurityHelper {
      **********************************************************************************************/
 
     //used to generate the key used for files encryption
-    public byte[] genFileKey() throws KeyStoreException, CertificateException,
+    public void genFileKey() throws KeyStoreException, CertificateException,
             NoSuchAlgorithmException, InvalidAlgorithmParameterException, NoSuchProviderException,
             IOException, UnrecoverableEntryException {
 
@@ -289,7 +288,7 @@ public class SecurityHelper {
             editor.putString(Constants.SHARED_PREF_KEY_KF, Base64.encodeToString(fk, Base64.DEFAULT));
             editor.apply();
             oldFileKey = fk;
-            return fk;
+            this.fileKey= fk;
         }
         //else old key is equals to the saved key and new key is generated and saved
         else {
@@ -300,7 +299,7 @@ public class SecurityHelper {
             SharedPreferences.Editor editor = sharedPref.edit();
             editor.putString(Constants.SHARED_PREF_KEY_KF, Base64.encodeToString(newFK, Base64.DEFAULT));
             editor.apply();
-            return newFK;
+            this.fileKey= newFK;
         }
 
     }
@@ -352,21 +351,7 @@ public class SecurityHelper {
         return valid;
     }
 
-    public boolean verifySignature(byte[] signature, byte[] data) throws NoSuchAlgorithmException,
-            InvalidKeySpecException, KeyStoreException, IOException, InvalidKeyException,
-            SignatureException {
-        Signature signature1;
-
-        signature1 = Signature.getInstance("SHA256withRSA");
-        signature1.initVerify(getPublicKey());
-        signature1.update(data);
-        boolean result = signature1.verify(signature);
-        return result;
-
-    }
-
-
-    public byte[] messageDigest(byte[] data) {
+    public byte[] messageDigest(byte[] data) throws MyException {
 
         byte[] dataDigest = null;
         try {
@@ -374,10 +359,9 @@ public class SecurityHelper {
             md.update(data);
             MessageDigest dataMD = (java.security.MessageDigest) md.clone();
             dataDigest = dataMD.digest();
-        } catch (CloneNotSupportedException cnse) {
-            Log.e(TAG, "couldn't make digest of partial content");
-        } catch (NoSuchAlgorithmException e) {
+        } catch (Exception e) {
             Log.d(TAG, e.getMessage());
+            throw new MyException(e.getMessage());
         }
 
         return dataDigest;

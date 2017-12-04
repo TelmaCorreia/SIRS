@@ -2,6 +2,7 @@ package com.sirs.smartcipher;
 
 import android.util.Base64;
 
+import com.sirs.smartcipher.bluetooth.MyException;
 import com.sirs.smartcipher.security.SecurityHelper;
 
 import java.io.ByteArrayOutputStream;
@@ -42,7 +43,7 @@ public class Core {
             NoSuchAlgorithmException, KeyStoreException, IOException, BadPaddingException,
             IllegalBlockSizeException, InvalidKeyException, InvalidKeySpecException,
             CertificateException, UnrecoverableEntryException, NoSuchProviderException,
-            InvalidAlgorithmParameterException {
+            InvalidAlgorithmParameterException, MyException {
 
         switch(requestType){
             case Constants.START_CONNECTION:
@@ -62,7 +63,7 @@ public class Core {
     //process responses from server
     public boolean processResponse(String requestType, String response) throws
             NoSuchPaddingException, InvalidKeyException, NoSuchAlgorithmException,
-            IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException, InvalidKeySpecException, SignatureException, KeyStoreException, IOException {
+            IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException, InvalidKeySpecException, SignatureException, KeyStoreException, IOException, MyException {
 
         //decrypt message
         byte[] decryptedResponse = getSecurityHelper().decrypt(Base64.decode(response.getBytes(), NO_WRAP));
@@ -74,7 +75,7 @@ public class Core {
     }
 
     //validate response from server
-    private boolean validateResponse(HashMap<String, byte[]> map) {
+    private boolean validateResponse(HashMap<String, byte[]> map) throws MyException {
 
         boolean nonce = getSecurityHelper().checkValidNonce(map.get("nonce"));
         boolean counter = getSecurityHelper().checkValidCounter(map.get("counter"));
@@ -88,7 +89,7 @@ public class Core {
     //asymmetric message that contains the session key and iv
     private String startConnection(String requestType) throws NoSuchPaddingException,
             InvalidKeySpecException, NoSuchAlgorithmException, KeyStoreException,
-            BadPaddingException, IllegalBlockSizeException, InvalidKeyException, IOException {
+            BadPaddingException, IllegalBlockSizeException, InvalidKeyException, IOException, MyException {
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
@@ -103,8 +104,9 @@ public class Core {
     private String sendFKEY(String requestType) throws IOException, CertificateException,
             NoSuchAlgorithmException, KeyStoreException, UnrecoverableEntryException,
             NoSuchProviderException, InvalidAlgorithmParameterException, IllegalBlockSizeException,
-            InvalidKeyException, BadPaddingException, NoSuchPaddingException {
+            InvalidKeyException, BadPaddingException, NoSuchPaddingException, MyException {
 
+        getSecurityHelper().genFileKey();
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
         outputStream.write(requestType.getBytes());
@@ -120,7 +122,7 @@ public class Core {
     //used to pings and stop messages
     private String sendSimpleMessage(String requestType) throws NoSuchPaddingException,
             InvalidAlgorithmParameterException, NoSuchAlgorithmException, IllegalBlockSizeException,
-            BadPaddingException, InvalidKeyException, IOException {
+            BadPaddingException, InvalidKeyException, IOException, MyException {
 
         byte[] content = getSecurityHelper().composeMsgSymetricEncryption(requestType.getBytes());
 
