@@ -110,15 +110,24 @@ def decrypt_files(key, folder):
                 try:
                     decrypt_file(key, root+"/"+filename, "tmpfile.tmp")
                 except Exception as e:
-                    os.remove("tmpfile.tmp")
+                    try:
+                        os.remove("tmpfile.tmp")
+                    except Exception as e_rm:
+                        pass
                     raise e
                 # TODO(?) shred plain file?
                 os.remove(root+"/"+filename)
                 os.rename("tmpfile.tmp", root+"/"+filename)
                 plain_files.append(root+"/"+filename)
     except Exception as e:
+        try:
+            os.remove("tmpfile.tmp")
+        except Exception as e_rm:
+            pass
+
         for file in plain_files:
             encrypt_file_using_tmp(key, file)
+        raise e
 
 def encrypt_file_using_tmp(key, file):
     encrypt_file(key, file, "tmpfile.tmp")
