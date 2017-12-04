@@ -26,7 +26,9 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/scan_header"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="10dp"/>
+            android:text="nothing scanned..."
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="50dp"/>
 
 
     </LinearLayout>
@@ -41,14 +43,5 @@
         android:background="#000000"
         android:text="Take Picture"/>
 
-    <Button
-        android:id="@+id/button_Device"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:layout_gravity="bottom"
-        android:textColor="#FFFFFF"
-        android:background="#000000"
-        android:text="SelectDevice"/>
 
 </LinearLayout>

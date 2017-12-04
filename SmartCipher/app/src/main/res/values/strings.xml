@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">SmartCipher</string>
+    <string name="action_pk">Public key</string>
+    <string name="action_device">Select PC</string>
 </resources>

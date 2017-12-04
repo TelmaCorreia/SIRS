@@ -58,7 +58,6 @@ public class ConfigActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_qr);
         Button button = (Button) findViewById(R.id.button);
-        Button buttonDevice = (Button) findViewById(R.id.button_Device);
         scanResults = (TextView) findViewById(R.id.scan_results);
         if (savedInstanceState != null) {
             imageUri = Uri.parse(savedInstanceState.getString(SAVED_INSTANCE_URI));
@@ -70,15 +69,6 @@ public class ConfigActivity extends AppCompatActivity {
                 ActivityCompat.requestPermissions(ConfigActivity.this, new
                         String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_WRITE_PERMISSION);
             }
-        });
-
-        buttonDevice.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showDialog(getDevices());
-            }
-
-
         });
 
         detector = new BarcodeDetector.Builder(getApplicationContext())
@@ -184,71 +174,5 @@ public class ConfigActivity extends AppCompatActivity {
                 .openInputStream(uri), null, bmOptions);
     }
 
-    private void showDialog(final Map<String, BluetoothDevice> map) {
-        AlertDialog.Builder builderSingle = new AlertDialog.Builder(ConfigActivity.this);
-        builderSingle.setTitle("Select One Device:");
 
-        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(ConfigActivity.this, android.R.layout.select_dialog_singlechoice);
-        for (String device : map.keySet()) {
-            arrayAdapter.add(device);
-        }
-
-        builderSingle.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
-
-        builderSingle.setAdapter(arrayAdapter, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                String strName = arrayAdapter.getItem(which);
-                String mac = map.get(strName).getAddress();
-                saveMACAddress(mac);
-                AlertDialog.Builder builderInner = new AlertDialog.Builder(ConfigActivity.this);
-                builderInner.setMessage(strName);
-                builderInner.setTitle("Your Selected Item is");
-                builderInner.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog,int which) {
-                        dialog.dismiss();
-                    }
-                });
-                builderInner.show();
-            }
-        });
-        builderSingle.show();
-    }
-
-
-    private Map<String, BluetoothDevice> getDevices() {
-        BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-
-        Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
-
-        Map<String, BluetoothDevice> map = new HashMap<>();
-        Log.d(TAG, "Paired devices: " + pairedDevices.size());
-        String name = "";
-        if (pairedDevices.size() > 0) {
-            for (BluetoothDevice device : pairedDevices) {
-                String deviceName = device.getName();
-                String deviceHardwareAddress = device.getAddress(); // MAC address
-                Log.d(TAG, "Device Name: " + deviceName);
-                Log.d(TAG, "Device MAC: " + deviceHardwareAddress);
-                map.put(deviceName, device);
-            }
-        }
-        return map;
-    }
-
-    private void saveMACAddress(String macAddress){
-        Context context = MyApp.getAppContext();
-        SharedPreferences sharedPref = context.getSharedPreferences(Constants.SHARED_PREF_MAC, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putString(Constants.SHARED_PREF_KEY_MAC, macAddress);
-        editor.commit();
-
-
-    }
 }
