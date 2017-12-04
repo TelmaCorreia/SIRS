@@ -41,4 +41,14 @@
         android:background="#000000"
         android:text="Take Picture"/>
 
+    <Button
+        android:id="@+id/button_Device"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_gravity="bottom"
+        android:textColor="#FFFFFF"
+        android:background="#000000"
+        android:text="SelectDevice"/>
+
 </LinearLayout>
