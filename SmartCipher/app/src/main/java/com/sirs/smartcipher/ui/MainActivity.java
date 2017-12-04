@@ -17,6 +17,8 @@ import com.sirs.smartcipher.R;
 import com.sirs.smartcipher.bluetooth.MyBluetoothClient;
 import com.sirs.smartcipher.network.MyHttpClient;
 
+import org.apache.http.NoHttpResponseException;
+
 import java.io.IOException;
 import java.net.ConnectException;
 import java.security.InvalidAlgorithmParameterException;
@@ -72,13 +74,35 @@ public class MainActivity extends AppCompatActivity {
                     }
                     return;
 
-                }catch (Exception e) {
+                }catch (ConnectException e) {
 
                     Log.d(TAG, "Failed connection, please make sure your key is up to date");
                     Toast.makeText(MainActivity.this, "Failed connection, please make sure your key is up to date", Toast.LENGTH_SHORT).show();
                     System.out.println(e.getMessage());
 
 
+                }
+                catch (NoHttpResponseException e) {
+
+                    Log.d(TAG, "Failed connection, please make sure your key is up to date");
+                    Toast.makeText(MainActivity.this, "Failed connection, please make sure your key is up to date", Toast.LENGTH_SHORT).show();
+                    System.out.println(e.getMessage());
+
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (CertificateException e) {
+                    e.printStackTrace();
+                } catch (NoSuchAlgorithmException e) {
+                    e.printStackTrace();
+                } catch (KeyStoreException e) {
+                    e.printStackTrace();
+                } catch (UnrecoverableEntryException e) {
+                    e.printStackTrace();
+                } catch (InvalidAlgorithmParameterException e) {
+                    e.printStackTrace();
+                } catch (NoSuchProviderException e) {
+                    e.printStackTrace();
                 }
             }
         });
@@ -97,7 +121,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 try {
                     MyBluetoothClient b = new MyBluetoothClient(true);
-                    //b.run();
+                    b.run();
                 } catch (CertificateException e) {
                     e.printStackTrace();
                 } catch (InvalidAlgorithmParameterException e) {

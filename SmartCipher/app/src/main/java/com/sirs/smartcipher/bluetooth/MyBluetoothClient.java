@@ -27,13 +27,16 @@ import java.security.SignatureException;
 import java.security.UnrecoverableEntryException;
 import java.security.cert.CertificateException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
-public class MyBluetoothClient {
+public class MyBluetoothClient extends Thread{
 
     private static final String TAG = "running";
 
@@ -64,7 +67,7 @@ public class MyBluetoothClient {
                 mArrayAdapter.add(device);
 
                 pc=device;
-                run(pc);
+                //run(pc);
 
             }
 
@@ -96,31 +99,32 @@ public class MyBluetoothClient {
 //        IntentFilter filter1 = new IntentFilter("android.bluetooth.BluetoothDevice.ACTION_ACL_CONNECTED");
 //        MyApp.getAppContext().registerReceiver(mReceiver, filter1);
 
-        mBluetoothAdapter.startDiscovery();
+       // mBluetoothAdapter.startDiscovery();
        // while (mArrayAdapter.size()==0){}
 
-       // pc = getDevice();
+        pc = getDevice();
     }
 
     // FIXME select the right (?) bluetooth device. First? Selected by user?
     private BluetoothDevice getDevice() {
 
-//        Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
-//
-//        Map<String, BluetoothDevice> map = new HashMap<>();
-//        Log.d(TAG, "Paired devices: " + pairedDevices.size());
-//        String name = "";
-//        if (pairedDevices.size() > 0) {
-//            for (BluetoothDevice device : pairedDevices) {
-//                String deviceName = device.getName();
-//                String deviceHardwareAddress = device.getAddress(); // MAC address
-//                Log.d(TAG, "Device Name: " + deviceName);
-//                Log.d(TAG, "Device MAC: " + deviceHardwareAddress);
-//                map.put(deviceName, device);
-//                //FIXME? return first
-//                return device;
-//            }
-//        }
+        Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
+
+        Map<String, BluetoothDevice> map = new HashMap<>();
+        Log.d(TAG, "Paired devices: " + pairedDevices.size());
+        String name = "";
+        if (pairedDevices.size() > 0) {
+            for (BluetoothDevice device : pairedDevices) {
+                String deviceName = device.getName();
+                String deviceHardwareAddress = device.getAddress(); // MAC address
+                Log.d(TAG, "Device Name: " + deviceName);
+                Log.d(TAG, "Device MAC: " + deviceHardwareAddress);
+                map.put(deviceName, device);
+                //FIXME? return first
+            }
+            return map.get("SAMSUNG-FILIPE");
+
+        }
 
 
 
@@ -129,8 +133,8 @@ public class MyBluetoothClient {
 
 
 
-//    @Override
-    public void run(BluetoothDevice pc) {
+    @Override
+    public void run() {
         connection = new Connection(pc);
         connection.connect();
         String url= "http://10.0.2.2";

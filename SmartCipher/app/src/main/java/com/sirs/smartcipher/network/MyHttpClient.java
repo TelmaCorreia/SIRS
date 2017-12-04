@@ -8,6 +8,7 @@ import com.sirs.smartcipher.Constants;
 import com.sirs.smartcipher.Core;
 
 import org.apache.http.HttpResponse;
+import org.apache.http.NoHttpResponseException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.conn.ConnectTimeoutException;
@@ -18,6 +19,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.net.ConnectException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.KeyStoreException;
@@ -63,14 +65,12 @@ public class MyHttpClient extends Thread { //extends AsyncTask<String, String, S
             }
             //http.post(url, STOP);
         }
-        catch (Exception e) {
-            //TODO FIXME I'm very sorry
-            Log.d(TAG, "Failed connection, please make sure your key is up to date");
-            System.out.println(e.getMessage());
+        catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 
-    protected String[] post_request(String... strings) {
+    protected String[] post_request(String... strings){
         String msg = "";
         HttpPost post = new HttpPost(strings[0]);
 
@@ -106,7 +106,11 @@ public class MyHttpClient extends Thread { //extends AsyncTask<String, String, S
             s[0] = requestType;
             s[1] = new String(result);
             return s;
-        } catch (InvalidKeySpecException e1) {
+        }catch (ConnectException e) {
+            e.printStackTrace();
+        }catch (NoHttpResponseException e) {
+            e.printStackTrace();
+        }catch (InvalidKeySpecException e1) {
             e1.printStackTrace();
         } catch (NoSuchProviderException e1) {
             e1.printStackTrace();
@@ -173,10 +177,7 @@ public class MyHttpClient extends Thread { //extends AsyncTask<String, String, S
 
     private HttpClient client = HttpClientBuilder.create().build();
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
     public void post(String url, String requestType) throws Exception {
-
-
 
         try{
             String msg = "";

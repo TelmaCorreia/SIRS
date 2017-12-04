@@ -20,7 +20,7 @@ import java.util.UUID;
  * Created by telma on 12/1/2017.
  */
 
-public class Connection extends Thread{
+public class Connection {
 
     private static final String TAG = "CONNECTION" ;
     private final BluetoothSocket mmSocket;
@@ -43,7 +43,7 @@ public class Connection extends Thread{
     }
 
     public void connect() {
-        mBluetoothAdapter.cancelDiscovery();
+       // mBluetoothAdapter.cancelDiscovery();
         try {
 
             mmSocket.connect();
