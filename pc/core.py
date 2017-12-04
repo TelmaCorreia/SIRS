@@ -17,15 +17,18 @@ session_iv = ""
 
 lock = Lock()
 last_communication = None
+call_on_stop = None
 
 def locked_closer(arg = None):
     print "Handling signal, with arg", arg
     with lock:
         on_close()
 
-def initialize():
+def initialize(f = None):
+    global call_on_stop
     gui.show_public()
     shutdown.register_function(locked_closer)
+    call_on_stop = f
 
 
 def assert_validkey(key):
@@ -54,6 +57,8 @@ def on_close():
         del session_key
         session_key = ""
         print "SESSION KEY DELETED"
+    if call_on_stop:
+        call_on_stop()
     print "SESSION CLOSED"
     print "="*64
 
@@ -96,7 +101,8 @@ def process_raw(text):
         else:
             global last_communication
             last_communication = int(time.time())
-        
+
+    print "Sending message with raw bytes:", len(res)
     print "\n\n"
     return res
         
@@ -115,8 +121,8 @@ def process_raw_aux(text):
         reply =  my_crypto.compose_message(response, session_key, session_iv)
         print "CORE: Composed symmetric message"
         if response == "STOP":
-            session_iv = ""
-            session_key = ""
+            on_close()
+            print "Closed"
         return reply
     else:
         my_crypto.start_session()
@@ -126,18 +132,20 @@ def process_raw_aux(text):
         response = start_session(message)
         print "CORE: Started session"
         reply = my_crypto.compose_message(response, session_key, session_iv)
-        print "CORE: Composed signed message"
+        print "CORE: Composed hashed message"
         return reply
 
 def process_message(message):
     print "Processing symmetric message:", message
+    print "len is ", len(message)
     
     if message == "":
         raise Exception("Received empty string")
     elif message.startswith("FKEY"):
         old_key = message[4:key_size+4]
         new_key = message[4+key_size:]
-        print "FKEY using key", old_key, "with len", len(old_key)
+        print "FKEY using old key", old_key, "with len", len(old_key)
+        print "FKEY using new key", new_key, "with len", len(new_key)
         assert_validkey(old_key)
         assert_validkey(new_key)
         print "FKEY is valid"
@@ -147,8 +155,7 @@ def process_message(message):
 
     elif message == "STOP":
         print "STOPPING"
-        on_close()
-        print "Closed"
+        #on_close()
         return "STOP"
 
     elif message == "PING":
