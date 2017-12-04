@@ -8,13 +8,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Base64;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.sirs.smartcipher.MyApp;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.UUID;
+
+
 
 /**
  * Created by telma on 12/1/2017.
@@ -25,6 +30,8 @@ public class Connection extends Thread{
     private static final String TAG = "CONNECTION" ;
     private final BluetoothSocket mmSocket;
     private final BluetoothDevice mmDevice;
+    private final InputStream mmInStream;
+    private final OutputStream mmOutStream;
     private BluetoothAdapter mBluetoothAdapter;
     java.util.UUID MY_UUID = UUID.fromString("1e0ca4ea-299d-4335-93eb-27fcfe7fa848");
 
@@ -33,6 +40,7 @@ public class Connection extends Thread{
         BluetoothSocket tmp = null;
         mmDevice = device;
 
+
         try {
             tmp = device.createRfcommSocketToServiceRecord(MY_UUID);
 
@@ -40,6 +48,25 @@ public class Connection extends Thread{
             Log.e(TAG, "Socket's create() method failed", e);
         }
         mmSocket = tmp;
+
+        InputStream tmpIn = null;
+        OutputStream tmpOut = null;
+
+        // Get the input and output streams; using temp objects because
+        // member streams are final.
+        try {
+            tmpIn = mmSocket.getInputStream();
+        } catch (IOException e) {
+            Log.e(TAG, "Error occurred when creating input stream", e);
+        }
+        try {
+            tmpOut = mmSocket.getOutputStream();
+        } catch (IOException e) {
+            Log.e(TAG, "Error occurred when creating output stream", e);
+        }
+
+        mmInStream = tmpIn;
+        mmOutStream = tmpOut;
     }
 
     public void connect() {
@@ -65,9 +92,17 @@ public class Connection extends Thread{
         }
     }
 
-    //https://developer.android.com/guide/topics/connectivity/bluetooth.html#ManagingAConnection
     public void send(String message) {
-        ; // TODO
+        byte[] msg =  Base64.decode(message, Base64.DEFAULT);
+        send(msg);
+    }
+
+    public void send(byte[] bytes) {
+        try {
+            mmOutStream.write(bytes);
+        } catch (IOException e) {
+            Log.e(TAG, "Error occurred when sending data", e);
+        }
     }
 
     // https://developer.android.com/guide/topics/connectivity/bluetooth.html#ManagingAConnection
