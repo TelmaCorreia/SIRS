@@ -157,6 +157,22 @@ public class MyBluetoothClient extends Thread{
         }
     }
 
+    /*private int getSizeOfMessage(String requestType ) {
+        switch(requestType){
+            case Constants.START_CONNECTION:
+                return startConnection(requestType);
+            case Constants.FKEY:
+                return sendFKEY(requestType);
+            case Constants.PING:
+                return 48;
+            case Constants.STOP:
+                return 48;
+            default:
+                return 0;
+        }
+        return 0;
+    }*/
+
     protected String[] post_request(String... strings) {
         String msg = "";
         HttpPost post = new HttpPost(strings[0]);
@@ -166,7 +182,7 @@ public class MyBluetoothClient extends Thread{
 
             msg = rm.generateMessage(requestType);
             connection.send(msg);
-            String result = connection.receive();
+            String result = connection.receive(48); //FIXME
             String[] s = new String[2];
             s[0] = requestType;
             s[1] = result;

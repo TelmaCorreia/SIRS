@@ -17,6 +17,7 @@ import com.sirs.smartcipher.MyApp;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
 import java.util.UUID;
 
 
@@ -106,8 +107,27 @@ public class Connection {
     }
 
     // https://developer.android.com/guide/topics/connectivity/bluetooth.html#ManagingAConnection
-    public String receive() {
-        ; // TODO
-        return null;
+    public String receive(int nToRead) {
+        byte[] mmBuffer = new byte[nToRead];
+        ByteBuffer buffer = ByteBuffer.allocate(nToRead);
+        int numBytes; // bytes returned from read()
+        int already_read = 0;
+
+        //buffer.put()
+
+        // Keep listening to the InputStream until an exception occurs.
+        while (already_read < nToRead) {
+            try {
+                // Read from the InputStream.
+                numBytes = mmInStream.read(mmBuffer);
+                buffer.put(mmBuffer, already_read, numBytes);
+                already_read += numBytes;
+
+            } catch (IOException e) {
+                Log.d(TAG, "Input stream was disconnected", e);
+                break;
+            }
+        }
+        return Base64.encodeToString(buffer.array(), Base64.DEFAULT);
     }
 }
