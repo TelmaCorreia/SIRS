@@ -2,8 +2,8 @@ from os import chmod
 from Crypto.PublicKey import RSA
 
 
-rsa_key_file = "..\private_key.der"
-rsa_public_key_file = "..\public_key.der"
+rsa_key_file = "../private_key.der"
+rsa_public_key_file = "../public_key.der"
 
 ######################################### INTEGRITY #########################################
 

@@ -11,7 +11,7 @@ from Crypto.Cipher import PKCS1_OAEP as pkcs1_cipher
 from Crypto.Signature import PKCS1_v1_5 as pkcs1_signature
 
 tolerance_seconds = 3
-rsa_key_file = "..\private_key.der"
+rsa_key_file = "../private_key.der"
 
 def hash_text(text):
     """SHA256 hash"""
