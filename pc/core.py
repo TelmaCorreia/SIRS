@@ -2,6 +2,7 @@ import time
 import file_encription
 import my_crypto
 import gui
+import os
 import shutdown
 from threading import Lock, Timer
 
@@ -29,6 +30,8 @@ def locked_closer(arg = None):
         on_close()
 
 def initialize(f = None):
+    if not os.path.exists(folder):
+        os.makedirs(folder)
     global call_on_stop
     gui.show_public()
     shutdown.register_function(locked_closer)
