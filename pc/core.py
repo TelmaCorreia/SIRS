@@ -7,8 +7,12 @@ from threading import Lock, Timer
 
 # Configuration
 folder = "folder"
-seconds_until_expiration = 10
 key_size = 16
+
+#Configuration
+timer_tolerance_seconds = 5
+timer_frequency = 5
+
 
 # Session storage
 stored_key = "" # FIXME ALL "" by default
@@ -62,10 +66,6 @@ def on_close():
     print "SESSION CLOSED"
     print "="*64
 
-
-timer_tolerance_seconds = 5
-timer_frequency = 10.0
-
 def timer_action():
     with lock:
         print "Timer checking in"
@@ -105,7 +105,7 @@ def process_raw(text):
     #DEV#print "Sending message with raw bytes:", len(res)
     print ""
     return res
-        
+
 
 def process_raw_aux(text):
     """Throws exceptions on incorrect messages! Must be handled above"""
