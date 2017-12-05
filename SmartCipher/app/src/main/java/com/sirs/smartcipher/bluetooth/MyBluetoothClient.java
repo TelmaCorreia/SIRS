@@ -52,7 +52,6 @@ public class MyBluetoothClient extends Thread{
     private static final String TAG = "running";
 
     java.util.UUID MY_UUID = UUID.fromString("1e0ca4ea-299d-4335-93eb-27fcfe7fa848");
-    public static final int TIME_INTERVAL = 3000;
 
     private Core rm;
 
@@ -135,7 +134,7 @@ public class MyBluetoothClient extends Thread{
             while(active){
                 response = post_request(Constants.PING);
                 processResponse(response);
-                Thread.sleep(TIME_INTERVAL);
+                Thread.sleep(Constants.TIME_INTERVAL);
             }
             post_request(Constants.STOP);
         }

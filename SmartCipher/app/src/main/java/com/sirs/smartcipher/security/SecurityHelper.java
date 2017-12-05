@@ -2,31 +2,23 @@ package com.sirs.smartcipher.security;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.Build;
 import android.util.Base64;
 import android.util.Log;
-import android.widget.Toast;
-
 import com.sirs.smartcipher.Constants;
 import com.sirs.smartcipher.MyApp;
 import com.sirs.smartcipher.bluetooth.MyException;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
-import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.PublicKey;
 import java.security.SecureRandom;
-import java.security.Signature;
-import java.security.SignatureException;
 import java.security.UnrecoverableEntryException;
 import java.security.cert.CertificateException;
 import java.security.spec.InvalidKeySpecException;

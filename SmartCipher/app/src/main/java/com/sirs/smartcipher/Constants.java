@@ -19,7 +19,7 @@ public final class Constants {
 
     //random lenght (bytes)
     public static final int LENGHT = 16;
-    public static final int TOLERANCE = 180;
+    public static final int TOLERANCE = 3;
     public static final String FILENAME = "public_key.der";
 
 
