@@ -9,7 +9,7 @@ verifier_size = len(integrity_verifier)
 tail_size = max_padding_size + verifier_size
 
 def secure_delete(path):
-    with open(path, "ba+") as f:
+    with open(path, "wb+") as f:
         length = f.tell()
         f.seek(0)
         f.write(os.urandom(length))
