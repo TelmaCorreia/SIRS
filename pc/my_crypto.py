@@ -10,7 +10,7 @@ from Crypto import Cipher
 from Crypto.Cipher import PKCS1_OAEP as pkcs1_cipher
 from Crypto.Signature import PKCS1_v1_5 as pkcs1_signature
 
-
+tolerance_seconds = 3
 rsa_key_file = "..\private_key.der"
 
 def hash_text(text):
@@ -48,7 +48,6 @@ def check_counter(text):
     return message
 
 ######################################### FRESHNESS #########################################
-tolerance_seconds = 3
 timestamp_format = "I"
 
 def is_fresh(timestamp):
@@ -122,12 +121,12 @@ def decrypt_string(encrypted_text, key="0123456701234567", iv="0123456701234567"
         Expects a string with messagesize+iv+encrypted message(AES CBC)
         Will return extra butes at the end, corresponding to the padding. They are to be ignored by the upper layer
     """
-    print "decrypting with", key, iv
+    #DEV#print "decrypting with", key, iv
     decryptor = AES.new(key, AES.MODE_CBC, iv)
     padded_message = decryptor.decrypt(encrypted_text)
 
     padding_size = ord(padded_message[-1])
-    print "padding_size", padding_size
+    #DEV#print "padding_size", padding_size
     message = padded_message[:-padding_size]
     return message
 
