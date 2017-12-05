@@ -12,7 +12,7 @@ def register_function(f):
             print 'ignoring signal %d\n' % sig
             
         signal.signal(signal.SIGTERM, stop)
-        signal.signal(signal.SIGHUP, ignore)
+        #signal.signal(signal.SIGHUP, ignore)
     except Exception as e:
         print e
         print "FAILED TO REGISTER SIGNAL HANDLING"
