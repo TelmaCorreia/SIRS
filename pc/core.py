@@ -63,8 +63,8 @@ def on_close():
     print "="*64
 
 
-timer_tolerance_seconds = 10
-timer_frequency = 20.0
+timer_tolerance_seconds = 5
+timer_frequency = 10.0
 
 def timer_action():
     with lock:
@@ -102,53 +102,53 @@ def process_raw(text):
             global last_communication
             last_communication = int(time.time())
 
-    print "Sending message with raw bytes:", len(res)
-    print "\n\n"
+    #DEV#print "Sending message with raw bytes:", len(res)
+    print ""
     return res
         
 
 def process_raw_aux(text):
     """Throws exceptions on incorrect messages! Must be handled above"""
-    print "RAW: size:", len(text), "bytes" #, text
+    #DEV#print "RAW: size:", len(text), "bytes" #, text
     global session_iv
     global session_key
     if session_key:
-        print "CORE: Processing symmetric message"
+        #DEV#print "CORE: Processing symmetric message"
         message = my_crypto.decompose_message(text, session_key, session_iv)
-        print "CORE: Decomposed symmetric message"
+        #DEV#print "CORE: Decomposed symmetric message"
         response = process_message(message)
-        print "CORE: Processed symmetric message"
+        #DEV#print "CORE: Processed symmetric message"
         reply =  my_crypto.compose_message(response, session_key, session_iv)
-        print "CORE: Composed symmetric message"
+        #DEV#print "CORE: Composed symmetric message"
         if response == "STOP":
             on_close()
             print "Closed"
         return reply
     else:
         my_crypto.start_session()
-        print "CORE: Processing assymetric message"
+        #DEV#print "CORE: Processing assymetric message"
         message = my_crypto.decompose_start(text)
-        print "CORE: Decomposed asymmetric message"
+        #DEV#print "CORE: Decomposed asymmetric message"
         response = start_session(message)
-        print "CORE: Started session"
+        #DEV#print "CORE: Started session"
         reply = my_crypto.compose_message(response, session_key, session_iv)
-        print "CORE: Composed hashed message"
+        #DEV#print "CORE: Composed hashed message"
         return reply
 
 def process_message(message):
-    print "Processing symmetric message:", message
-    print "len is ", len(message)
+    #DEV#print "Processing symmetric message:", message
+    #DEV#print "len is ", len(message)
     
     if message == "":
         raise Exception("Received empty string")
     elif message.startswith("FKEY"):
         old_key = message[4:key_size+4]
         new_key = message[4+key_size:]
-        print "FKEY using old key", old_key, "with len", len(old_key)
-        print "FKEY using new key", new_key, "with len", len(new_key)
+        #DEV#print "FKEY using old key", old_key, "with len", len(old_key)
+        #DEV#print "FKEY using new key", new_key, "with len", len(new_key)
         assert_validkey(old_key)
         assert_validkey(new_key)
-        print "FKEY is valid"
+        #DEV#print "FKEY is valid"
         on_receiving_key(old_key, new_key)
         print "Files decrypted"
         return "PING"

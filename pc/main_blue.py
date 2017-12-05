@@ -15,13 +15,9 @@ class My_Bluetooth_Server():
     def create_server(self):
         server_sock=bluetooth.BluetoothSocket( bluetooth.RFCOMM )
 
-        #port = bluetooth.get_available_port( bluetooth.RFCOMM )
-        
-        #server_sock.bind(("",bluetooth.PORT_ANY))
         port = 1
         server_sock.bind(("",bluetooth.PORT_ANY))
         server_sock.listen(1)
-        #print "listening on port %d" % port
 
         uuid = "1e0ca4ea-299d-4335-93eb-27fcfe7fa848"
         bluetooth.advertise_service( server_sock, "SecureFiles", uuid, service_classes = [uuid, bluetooth.SERIAL_PORT_CLASS ])
@@ -31,7 +27,8 @@ class My_Bluetooth_Server():
     def receive_message(self, size, client_sock):
         text = client_sock.recv(size)
 
-        print "received [%s]" % text
+        #DEV#print "received [%s]" % text
+        print "Bluetooth message received"
         try:
             message = core.process_raw(text)
         except Exception as e:

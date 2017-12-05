@@ -1,13 +1,13 @@
 import os, struct
+import time
 from Crypto.Cipher import AES
 from Crypto.Random import random
 
-integrity_verifier = "EVERYTHINGOK_THIS_STRING_IS_KNOWN_bUT KINDA big1234567890"
+integrity_verifier = "EVERYTHINGOK_THIS_STRING_IS_KNOWN_bUT KINDA big12345678901234567"
 max_padding_size = 16
 verifier_size = len(integrity_verifier)
 tail_size = max_padding_size + verifier_size
 
-# taken from https://eli.thegreenplace.net/2010/06/25/aes-encryption-of-files-in-python-with-pycrypto
 def encrypt_file(key, in_filename, out_filename=None, chunksize=64*1024):
     """ Encrypts a file using AES (CBC mode) with the
         given key.
@@ -101,6 +101,7 @@ def decrypt_file(key, in_filename, out_filename=None, chunksize=24*1024):
 
 
 def decrypt_files(key, folder):
+    start = time.time()
     plain_files = []
 
     try:
@@ -128,6 +129,8 @@ def decrypt_files(key, folder):
         for file in plain_files:
             encrypt_file_using_tmp(key, file)
         raise e
+    end = time.time()
+    print "encrypted in ", end-start
 
 def encrypt_file_using_tmp(key, file):
     encrypt_file(key, file, "tmpfile.tmp")
@@ -136,11 +139,14 @@ def encrypt_file_using_tmp(key, file):
 
 
 def encrypt_files(key, folder):
+    start = time.time()
     for root, dirnames, filenames in os.walk(folder):
         for filename in filenames:
             print "encripting", filename
             file = root+"/"+filename
             encrypt_file_using_tmp(key, file)
+    end = time.time()
+    print "encrypted in ", end-start
             
 
 
