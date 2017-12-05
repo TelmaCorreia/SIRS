@@ -8,6 +8,13 @@ max_padding_size = 16
 verifier_size = len(integrity_verifier)
 tail_size = max_padding_size + verifier_size
 
+def secure_delete(path):
+    with open(path, "ba+") as f:
+        length = f.tell()
+        f.seek(0)
+        f.write(os.urandom(length))
+    os.remove(path)
+
 def encrypt_file(key, in_filename, out_filename=None, chunksize=64*1024):
     """ Encrypts a file using AES (CBC mode) with the
         given key.
@@ -112,17 +119,18 @@ def decrypt_files(key, folder):
                     decrypt_file(key, root+"/"+filename, "tmpfile.tmp")
                 except Exception as e:
                     try:
-                        os.remove("tmpfile.tmp")
+                        #os.remove("tmpfile.tmp")
+                        secure_delete("tmpfile.tmp")
                     except Exception as e_rm:
                         pass
                     raise e
-                # TODO(?) shred plain file?
                 os.remove(root+"/"+filename)
                 os.rename("tmpfile.tmp", root+"/"+filename)
                 plain_files.append(root+"/"+filename)
     except Exception as e:
         try:
-            os.remove("tmpfile.tmp")
+            #os.remove("tmpfile.tmp")
+            secure_delete("tmpfile.tmp")
         except Exception as e_rm:
             pass
 
@@ -130,11 +138,12 @@ def decrypt_files(key, folder):
             encrypt_file_using_tmp(key, file)
         raise e
     end = time.time()
-    print "encrypted in ", end-start
+    print "decrypted in ", end-start
 
 def encrypt_file_using_tmp(key, file):
     encrypt_file(key, file, "tmpfile.tmp")
-    os.remove(file)
+    secure_delete(file)
+    #os.remove(file)
     os.rename("tmpfile.tmp", file)
 
 
