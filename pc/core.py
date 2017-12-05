@@ -6,7 +6,7 @@ import shutdown
 from threading import Lock, Timer
 
 # Configuration
-folder = "folder"
+folder = "smartcipher"
 key_size = 16
 
 #Configuration
